@@ -1,71 +1,68 @@
-#!/usr/bin/env python
+from typer import Argument, Typer, Option
 from pathlib import Path
-import subprocess
+from typing import Optional
+from .backends import Backends
 
-import typer
-from yaml import load, dump
-
-try:
-    from yaml import CLoader as Loader, CDumper as Dumper
-except ImportError:
-    from yaml import Loader, Dumper
+application = Typer()
 
 
-def load_config(path: Path):
-    return load(
-        subprocess.check_output(
-            [
-                "ansible-vault",
-                "decrypt",
-                "--output",
-                "-",
-                "./group_vars/personalvpn.yml",
-            ],
-            stderr=subprocess.DEVNULL,
-        ).decode(),
-        Loader=Loader,
-    )["personalvpn"]
-
-
-app = typer.Typer()
-
-
-def default_config_path() -> Path:
-    return Path("groupvars") / "personal.vpn"
-
-
-def default_template_path() -> Path:
-    return Path("roles") / "personalvpn" / "templates" / "wg0.conf.j2"
-
-
-@app.command()
-def list_peers(config: Path = default_config_path()):
-    for peer in load_config(config)["peers"]:
-        typer.echo(f"{peer}")
-
-
-@app.command()
-def regenerate_keys(config: Path = default_config_path()):
-    pass
-
-
-@app.command()
-def peer_config(
-    peer: str,
-    config: Path = default_config_path(),
-    template: Path = default_template_path(),
+@application.command()
+def new_config(
+    path: Path = Argument(
+        ..., help="path of the new config file", envvar="WGMGR_CONFIG_FILE"
+    ),
+    backend: Backends = Argument(
+        ...,
+        help="configuration backend to use",
+        envvar="WGMGR_CONFIG_BACKEND",
+        case_sensitive=False,
+    ),
 ):
+    """Create a new, empty config."""
     pass
 
 
-@app.command()
-def qr_code(
-    peer: str,
-    config: Path = default_config_path(),
-    template: Path = default_template_path(),
+@application.command()
+def add_peer(
+    config: Path = Argument(
+        ..., help="path of the config file", envvar="WGMGR_CONFIG_FILE"
+    ),
+    interactive: bool = Option(
+        False,
+        "-i",
+        "--interactive",
+        help="whether to configure the peer interactively",
+    ),
+    backend: Backends = Argument(
+        ...,
+        help="configuration backend to use",
+        envvar="WGMGR_CONFIG_BACKEND",
+        case_sensitive=False,
+    ),
 ):
+    """Add a new peer."""
     pass
+
+
+@application.command()
+def list_peers(
+    config: Path = Argument(
+        ..., help="path of the config file", envvar="WGMGR_CONFIG_FILE"
+    ),
+    backend: Backends = Argument(
+        ...,
+        help="configuration backend to use",
+        envvar="WGMGR_CONFIG_BACKEND",
+        case_sensitive=False,
+    ),
+):
+    """List peers."""
+    pass
+
+
+def run():
+    application()
 
 
 if __name__ == "__main__":
-    app()
+    run()

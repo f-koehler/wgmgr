@@ -1,13 +1,16 @@
-from typing import List, Generator
+from typing import List, Generator, Optional
 from ipaddress import IPv4Network, IPv4Address, IPv6Network, IPv6Address
 
-from peer import Peer
-import keygen
+from .peer import Peer
+from . import keygen
 
 
 class Config:
     def __init__(
-        self, ipv4_subnet: Optional[str] = None, ipv6_subnet: Optional[str] = None
+        self,
+        ipv4_subnet: Optional[str] = None,
+        ipv6_subnet: Optional[str] = None,
+        default_port: int = 51902,
     ):
         self.peers: List[Peer] = []
         self.network_ipv4: Optional[IPv4Network] = (
@@ -16,10 +19,16 @@ class Config:
         self.network_ipv6: Optional[IPv6Network] = (
             IPv6Network(ipv6_subnet) if ipv6_subnet else None
         )
+        self.default_port: int
 
-    def add_peer(self, hostname: str) -> Peer:
+    def add_peer(self, hostname: str, port: Optional[int] = None) -> Peer:
         private_key = keygen.generate_private_key()
-        peer = Peer(hostname, private_key, keygen.generate_public_key(private_key))
+        peer = Peer(
+            hostname,
+            private_key,
+            keygen.generate_public_key(private_key),
+            port=self.default_port,
+        )
 
         if self.network_ipv4:
             peer.ipv4_address = self.get_free_ipv4()
