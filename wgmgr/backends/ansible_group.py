@@ -29,7 +29,7 @@ class AnsibleGroup(Backend):
                 peer.entry["ipv4"] = peer.ipv4_address
             if peer.ipv6_address:
                 peer.entry["ipv6"] = peer.ipv6_address
-            # yml["peers"][peer.hostname] = {}
+            yml["peers"][peer.hostname] = peer_entry
 
         try:
             full_yml = load_yaml_file(self.path)
