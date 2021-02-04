@@ -30,7 +30,7 @@ class Config:
             peer.ipv4_address = self.get_free_ipv4()
 
         if self.network_ipv6:
-            peer.ipv4_address = self.get_free_ipv6()
+            peer.ipv6_address = self.get_free_ipv6()
 
         return peer
 

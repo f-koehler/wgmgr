@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Union
 
 from .ansible_group import AnsibleGroup
 from .base import Backend
+from .error import UnknownBackendError
 
 
 class Backends(str, Enum):
@@ -29,3 +30,5 @@ def create_backend(
 
     if backend == Backends.ansible_group:
         return AnsibleGroup.from_options(options)
+
+    raise UnknownBackendError(str(backend))

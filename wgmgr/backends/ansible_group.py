@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ipaddress import IPv4Network
+from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
 from typing import Dict
 
@@ -50,12 +50,13 @@ class AnsibleGroup(Backend):
                 "public_key": peer.public_key,
             }
             if peer.port != config.default_port:
-                peer_entry["port"] = peer.port
+                peer_entry["port"] = str(peer.port)
             if peer.ipv4_address:
-                peer.entry["ipv4"] = peer.ipv4_address
+                peer_entry["ipv4"] = str(peer.ipv4_address)
             if peer.ipv6_address:
-                peer.entry["ipv6"] = peer.ipv6_address
-            yml["peers"][peer.hostname] = peer_entry
+                peer_entry["ipv6"] = str(peer.ipv6_address)
+
+            yml["peers"][peer.hostname] = peer_entry  # type: ignore
 
         try:
             full_yml = load_yaml_file(self.path)

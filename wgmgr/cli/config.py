@@ -32,8 +32,8 @@ def new(
         IPv6Network(ipv6_subnet) if ipv6_subnet else None,
         port,
     )
-    backend = create_backend(backend, backend_option)
-    backend.save(config)
+    backend_inst = create_backend(backend, backend_option)
+    backend_inst.save(config)
 
 
 @app_set.command()
@@ -48,10 +48,10 @@ def default_port(
     port: int = Argument(..., help="default port for new peers"),
 ):
     """Set default port."""
-    backend = create_backend(backend, backend_option)
-    config = backend.load()
+    backend_inst = create_backend(backend, backend_option)
+    config = backend_inst.load()
     config.default_port = port
-    backend.save(config)
+    backend_inst.save(config)
 
 
 @app_set.command()
