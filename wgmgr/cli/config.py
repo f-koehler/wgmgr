@@ -1,6 +1,6 @@
 from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from typer import Argument, BadParameter, Option, Typer
 
@@ -25,14 +25,20 @@ def validate_subnet_ipv6(value: str) -> str:
 
 def validate_port(value: int) -> int:
     if (value < 0) or (value > 65535):
-        raise BadParameter(f"Invalid port number {value} (should be in range 0…65535)")
+        raise BadParameter(
+            f"Invalid port number {value} (should be in range 0…65535)"
+        )
     return value
 
 
 @app.command()
 def new(
     path: Path = Option(
-        ..., "-c", "--config", envvar="WGMGR_CONFIG", help="path of the config file"
+        ...,
+        "-c",
+        "--config",
+        envvar="WGMGR_CONFIG",
+        help="path of the config file",
     ),
     ipv4_subnet: Optional[str] = Option(
         None, "-4", "--ipv4", help="IPv4 subnet", callback=validate_subnet_ipv4
@@ -41,7 +47,11 @@ def new(
         None, "-6", "--ipv6", help="IPv6 subnet", callback=validate_subnet_ipv6
     ),
     port: int = Option(
-        51902, "-p", "--port", help="default port for new peers", callback=validate_port
+        51902,
+        "-p",
+        "--port",
+        help="default port for new peers",
+        callback=validate_port,
     ),
 ):
     """Create a new, empty config."""
@@ -60,9 +70,15 @@ def new(
 @app_set.command()
 def default_port(
     path: Path = Option(
-        ..., "-c", "--config", envvar="WGMGR_CONFIG", help="path of the config file"
+        ...,
+        "-c",
+        "--config",
+        envvar="WGMGR_CONFIG",
+        help="path of the config file",
     ),
-    port: int = Argument(..., help="default port for peers", callback=validate_port),
+    port: int = Argument(
+        ..., help="default port for peers", callback=validate_port
+    ),
 ):
     """Set default port updating all peers that do not have a fixed port."""
     config = Config.load(path)
@@ -73,7 +89,11 @@ def default_port(
 @app_set.command()
 def ipv4_subnet(
     path: Path = Option(
-        ..., "-c", "--config", envvar="WGMGR_CONFIG", help="path of the config file"
+        ...,
+        "-c",
+        "--config",
+        envvar="WGMGR_CONFIG",
+        help="path of the config file",
     ),
     subnet: str = Argument(
         ..., help="IPv4 subnet in CIDR notation", callback=validate_subnet_ipv4
@@ -88,7 +108,11 @@ def ipv4_subnet(
 @app_set.command()
 def ipv6_subnet(
     path: Path = Option(
-        ..., "-c", "--config", envvar="WGMGR_CONFIG", help="path of the config file"
+        ...,
+        "-c",
+        "--config",
+        envvar="WGMGR_CONFIG",
+        help="path of the config file",
     ),
     subnet: str = Argument(
         ..., help="IPv6 subnet in CIDR notation", callback=validate_subnet_ipv6

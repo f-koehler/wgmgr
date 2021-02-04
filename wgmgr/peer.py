@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ipaddress import IPv4Address, IPv6Address
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from . import keygen
 
@@ -15,7 +15,9 @@ class Peer:
     ):
         self.hostname: str = hostname
         self.private_key = (
-            keygen.generate_private_key() if private_key is None else private_key
+            keygen.generate_private_key()
+            if private_key is None
+            else private_key
         )
         self.public_key = (
             keygen.generate_public_key(self.private_key)
@@ -62,11 +64,17 @@ class Peer:
 
     @staticmethod
     def from_config_entry(entry: dict[str, Any]) -> Peer:
-        peer = Peer(entry["hostname"], entry["private_key"], entry["public_key"])
+        peer = Peer(
+            entry["hostname"], entry["private_key"], entry["public_key"]
+        )
 
-        peer.ipv4_address = IPv4Address(entry["ipv4"]) if "ipv4" in entry else None
+        peer.ipv4_address = (
+            IPv4Address(entry["ipv4"]) if "ipv4" in entry else None
+        )
         peer.ipv4_auto = entry.get("ipv4_auto", None)
-        peer.ipv6_address = IPv6Address(entry["ipv6"]) if "ipv6" in entry else None
+        peer.ipv6_address = (
+            IPv6Address(entry["ipv6"]) if "ipv6" in entry else None
+        )
         peer.ipv6_auto = entry.get("ipv6_auto", None)
         peer.port = entry.get("port", None)
         peer.port_auto = entry.get("port_auto", None)

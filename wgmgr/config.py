@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional
+from typing import Any, Generator
 
-from . import keygen
 from .peer import Peer
 from .util import load_yaml_file, write_yaml_file
 
@@ -87,8 +86,12 @@ class Config:
         yml = load_yaml_file(path)
 
         config = Config(
-            IPv4Network(yml["ipv4_subnet"]) if yml.get("ipv4_subnet", None) else None,
-            IPv6Network(yml["ipv6_subnet"]) if yml.get("ipv6_subnet", None) else None,
+            IPv4Network(yml["ipv4_subnet"])
+            if yml.get("ipv4_subnet", None)
+            else None,
+            IPv6Network(yml["ipv6_subnet"])
+            if yml.get("ipv6_subnet", None)
+            else None,
             default_port=yml["default_port"],
         )
 

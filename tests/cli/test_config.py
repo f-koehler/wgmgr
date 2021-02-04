@@ -1,7 +1,6 @@
 import tempfile
 from pathlib import Path
 
-import pytest
 from typer.testing import CliRunner
 
 from wgmgr.cli.config import app
