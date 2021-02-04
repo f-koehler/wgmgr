@@ -10,7 +10,7 @@ from wgmgr.config import Config
 class Backend(ABC):
     @staticmethod
     @abstractmethod
-    def from_options(options: Dict[str, str]) -> Backend:
+    def from_options(options: dict[str, str]) -> Backend:
         pass
 
     @abstractmethod

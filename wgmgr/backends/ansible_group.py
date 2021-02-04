@@ -17,7 +17,7 @@ class AnsibleGroup(Backend):
         self.key = key
 
     @staticmethod
-    def from_options(options: Dict[str, str]) -> AnsibleGroup:
+    def from_options(options: dict[str, str]) -> AnsibleGroup:
         options["key"] = options.get("key", "wgmgr")
         if not "path" in options:
             raise MissingBackendOptionError("path")

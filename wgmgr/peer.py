@@ -9,6 +9,6 @@ class Peer:
         self.hostname: str = hostname
         self.private_key: str = private_key
         self.public_key: str = public_key
-        self.ipv4_address: Optional[IPv4Address] = None
-        self.ipv6_address: Optional[IPv6Address] = None
+        self.ipv4_address: IPv4Address | None = None
+        self.ipv6_address: IPv6Address | None = None
         self.port: int = port
