@@ -1,38 +1,56 @@
+from __future__ import annotations
+
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
-from typing import Generator, List, Optional
+from pathlib import Path
+from typing import Any, Dict, Generator, List, Optional
 
 from . import keygen
 from .peer import Peer
+from .util import load_yaml_file, write_yaml_file
 
 
 class Config:
     def __init__(
         self,
-        ipv4_subnet: Optional[IPv4Network] = None,
-        ipv6_subnet: Optional[IPv6Network] = None,
+        ipv4_subnet: IPv4Network | None = None,
+        ipv6_subnet: IPv6Network | None = None,
         default_port: int = 51902,
     ):
-        self.peers: List[Peer] = []
+        self.peers: list[Peer] = []
         self.network_ipv4 = ipv4_subnet
         self.network_ipv6 = ipv6_subnet
         self.default_port = default_port
 
-    def add_peer(self, hostname: str, port: Optional[int] = None) -> Peer:
-        private_key = keygen.generate_private_key()
-        peer = Peer(
-            hostname,
-            private_key,
-            keygen.generate_public_key(private_key),
-            port=self.default_port,
-        )
+    def update_default_port(self, port: int):
+        self.default_port = port
 
-        if self.network_ipv4:
-            peer.ipv4_address = self.get_free_ipv4()
+        for peer in self.peers:
+            if peer.port_auto:
+                peer.port = port
 
-        if self.network_ipv6:
-            peer.ipv6_address = self.get_free_ipv6()
+    def update_ipv4_subnet(self, subnet: IPv4Network):
+        self.network_ipv4 = subnet
+        for peer in self.peers:
+            if peer.ipv4_address is None:
+                peer.ipv4_address = self.get_next_ipv4()
+                continue
 
-        return peer
+            if peer.ipv4_address in self.network_ipv4:
+                continue
+
+            peer.ipv4_address = self.get_next_ipv4()
+
+    def update_ipv6_subnet(self, subnet: IPv6Network):
+        self.network_ipv6 = subnet
+        for peer in self.peers:
+            if peer.ipv6_address is None:
+                peer.ipv6_address = self.get_next_ipv6()
+                continue
+
+            if peer.ipv6_address in self.network_ipv6:
+                continue
+
+            peer.ipv6_address = self.get_next_ipv6()
 
     def get_addresses_ipv4(self) -> Generator[IPv4Address, None, None]:
         for peer in self.peers:
@@ -44,7 +62,7 @@ class Config:
             if peer.ipv6_address:
                 yield peer.ipv6_address
 
-    def get_free_ipv4(self) -> IPv4Address:
+    def get_next_ipv4(self) -> IPv4Address:
         if not self.network_ipv4:
             raise ValueError("no IPv4 network specified")
 
@@ -52,9 +70,9 @@ class Config:
         for address in self.network_ipv4:
             if address not in addresses:
                 return address
-        raise RuntimeError("all IPv4 addresses already occupied")
+        raise RuntimeError("all IPv4 addresses already taken")
 
-    def get_free_ipv6(self) -> IPv6Address:
+    def get_next_ipv6(self) -> IPv6Address:
         if not self.network_ipv6:
             raise ValueError("no IPv6 network specified")
 
@@ -62,4 +80,33 @@ class Config:
         for address in self.network_ipv6:
             if address not in addresses:
                 return address
-        raise RuntimeError("all IPv6 addresses already occupied")
+        raise RuntimeError("all IPv6 addresses already taken")
+
+    @staticmethod
+    def load(path: Path) -> Config:
+        yml = load_yaml_file(path)
+
+        config = Config(
+            IPv4Network(yml["ipv4_subnet"]) if yml.get("ipv4_subnet", None) else None,
+            IPv6Network(yml["ipv6_subnet"]) if yml.get("ipv6_subnet", None) else None,
+            default_port=yml["default_port"],
+        )
+
+        for hostname in yml["peers"]:
+            config.peers.append(Peer(hostname, yml["peers"][hostname]["ipv4"]))
+
+        return config
+
+    def save(self, path: Path):
+        yml: dict[str, Any] = {"peers": {}, "default_port": self.default_port}
+
+        if self.network_ipv4 is not None:
+            yml["ipv4_subnet"] = str(self.network_ipv4)
+
+        if self.network_ipv6 is not None:
+            yml["ipv6_subnet"] = str(self.network_ipv6)
+
+        for peer in self.peers:
+            yml["peers"][peer.hostname] = peer.to_config_entry()
+
+        write_yaml_file(path, yml)
