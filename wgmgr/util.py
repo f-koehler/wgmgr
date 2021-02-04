@@ -6,14 +6,7 @@ import yaml
 
 def load_yaml_file(path: Path) -> Any:
     with open(path) as fptr:
-        try:
-            from yaml import CLoader
-
-            return yaml.load(fptr, Loader=CLoader)
-        except ImportError:
-            from yaml import Loader
-
-            return yaml.load(fptr, Loader=Loader)
+        return yaml.safe_load(fptr)
 
 
 def generate_yaml(data: Any) -> str:
