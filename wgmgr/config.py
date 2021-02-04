@@ -8,18 +8,14 @@ from . import keygen
 class Config:
     def __init__(
         self,
-        ipv4_subnet: Optional[str] = None,
-        ipv6_subnet: Optional[str] = None,
+        ipv4_subnet: Optional[IPv4Network] = None,
+        ipv6_subnet: Optional[IPv6Network] = None,
         default_port: int = 51902,
     ):
         self.peers: List[Peer] = []
-        self.network_ipv4: Optional[IPv4Network] = (
-            IPv4Network(ipv4_subnet) if ipv4_subnet else None
-        )
-        self.network_ipv6: Optional[IPv6Network] = (
-            IPv6Network(ipv6_subnet) if ipv6_subnet else None
-        )
-        self.default_port: int
+        self.network_ipv4 = ipv4_subnet
+        self.network_ipv6 = ipv6_subnet
+        self.default_port = default_port
 
     def add_peer(self, hostname: str, port: Optional[int] = None) -> Peer:
         private_key = keygen.generate_private_key()

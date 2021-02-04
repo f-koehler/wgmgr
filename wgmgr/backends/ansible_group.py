@@ -1,22 +1,47 @@
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Dict
+from ipaddress import IPv4Network, IPv4Network
 
 from .base import Backend
+from .error import MissingBackendOptionError
 from wgmgr.config import Config
 from wgmgr.util import load_yaml_file, write_yaml_file
 
 
 class AnsibleGroup(Backend):
     def __init__(self, path: Path, key: str):
-        self.path = Path
+        self.path = path
         self.key = key
+
+    @staticmethod
+    def from_options(options: Dict[str, str]) -> AnsibleGroup:
+        options["key"] = options.get("key", "wgmgr")
+        if not "path" in options:
+            raise MissingBackendOptionError("path")
+        return AnsibleGroup(Path(options["path"]), options["key"])
 
     def load(self) -> Config:
         yml = load_yaml_file(self.path)[self.key]
+        config = Config()
+
+        if "ipv4_subnet" in yml:
+            config.network_ipv4 = IPv4Network(yml["ipv4_subnet"])
+
+        if "ipv6_subnet" in yml:
+            config.network_ipv6 = IPv6Network(yml["ipv6_subnet"])
+
+        return config
 
     def save(self, config: Config):
         yml = {"peers": {}, "default_port": config.default_port}
-        yml["ipv4_subnet"] = str(config.network_ipv4) if config.network_ipv4 else None
-        yml["ipv6_subnet"] = str(config.network_ipv6) if config.network_ipv6 else None
+
+        if config.network_ipv4:
+            yml["ipv4_subnet"] = str(config.network_ipv4)
+
+        if config.network_ipv6:
+            yml["ipv6_subnet"] = str(config.network_ipv6)
 
         for peer in config.peers:
             peer_entry = {
