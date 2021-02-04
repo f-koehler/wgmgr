@@ -5,7 +5,7 @@ import yaml
 
 
 def load_yaml_file(path: Path) -> Any:
-    with open(path, "r") as fptr:
+    with open(path) as fptr:
         try:
             from yaml import CLoader
 
