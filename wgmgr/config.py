@@ -1,8 +1,8 @@
-from typing import List, Generator, Optional
-from ipaddress import IPv4Network, IPv4Address, IPv6Network, IPv6Address
+from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
+from typing import Generator, List, Optional
 
-from .peer import Peer
 from . import keygen
+from .peer import Peer
 
 
 class Config:

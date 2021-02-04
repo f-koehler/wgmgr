@@ -1,14 +1,15 @@
 #!/usr/bin/env python
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 import typer
-from yaml import load, dump
+from yaml import dump, load
 
 try:
-    from yaml import CLoader as Loader, CDumper as Dumper
+    from yaml import CDumper as Dumper
+    from yaml import CLoader as Loader
 except ImportError:
-    from yaml import Loader, Dumper
+    from yaml import Dumper, Loader
 
 
 def load_config(path: Path):

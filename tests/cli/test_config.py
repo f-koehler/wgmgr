@@ -4,7 +4,6 @@ from typer.testing import CliRunner
 
 from wgmgr.cli.config import app
 
-
 runner = CliRunner()
 
 

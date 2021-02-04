@@ -1,13 +1,14 @@
 from __future__ import annotations
 
+from ipaddress import IPv4Network
 from pathlib import Path
 from typing import Dict
-from ipaddress import IPv4Network, IPv4Network
+
+from wgmgr.config import Config
+from wgmgr.util import load_yaml_file, write_yaml_file
 
 from .base import Backend
 from .error import MissingBackendOptionError
-from wgmgr.config import Config
-from wgmgr.util import load_yaml_file, write_yaml_file
 
 
 class AnsibleGroup(Backend):

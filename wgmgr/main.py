@@ -1,6 +1,8 @@
-from typer import Argument, Typer, Option
 from pathlib import Path
 from typing import Optional
+
+from typer import Argument, Option, Typer
+
 from .backends import Backends
 
 application = Typer()

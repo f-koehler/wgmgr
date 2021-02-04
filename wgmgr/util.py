@@ -1,6 +1,7 @@
-import yaml
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 
 def load_yaml_file(path: Path) -> Any:

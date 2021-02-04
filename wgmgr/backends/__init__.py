@@ -1,8 +1,8 @@
 from enum import Enum
-from typing import Optional, List, Dict, Union
+from typing import Dict, List, Optional, Union
 
-from .base import Backend
 from .ansible_group import AnsibleGroup
+from .base import Backend
 
 
 class Backends(str, Enum):

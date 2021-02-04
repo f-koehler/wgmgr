@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import List, Optional
 from ipaddress import IPv4Address, IPv6Address
+from typing import List, Optional
 
 
 class Peer:

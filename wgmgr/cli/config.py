@@ -1,8 +1,8 @@
-from pathlib import Path
 from ipaddress import IPv4Network, IPv6Network
-from typing import Optional, List
+from pathlib import Path
+from typing import List, Optional
 
-from typer import Typer, Argument, Option
+from typer import Argument, Option, Typer
 
 from wgmgr.backends import Backends, create_backend
 from wgmgr.config import Config
