@@ -27,6 +27,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install poetry
           python -m poetry install
+          sudo apt install wireguard-tools
       - name: Test with pytest
         run: |
           python -m poetry run pytest
