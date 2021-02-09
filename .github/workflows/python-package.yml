@@ -28,12 +28,15 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install poetry
         python -m poetry install
+    - name: Test with pytest
+      run: |
+        python -m poetry run pytest
     - name: Lint with mypy
       run: |
         mypy wgmgr
     - name: Lint with flake8
       run: |
         flake8 wgmgr
-    - name: Test with pytest
+    - name: Lint with black
       run: |
-        python -m poetry run pytest
+        black --check wgmgr
