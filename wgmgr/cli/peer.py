@@ -21,14 +21,14 @@ def new(
         envvar="WGMGR_CONFIG",
         help="path of the config file",
     ),
-    ipv4: Optional[Path] = Option(
+    ipv4: Optional[str] = Option(
         None,
         "-4",
         "--ipv4",
         help="IPv4 address of the new peer",
         callback=validate_address_ipv4,
     ),
-    ipv6: Optional[Path] = Option(
+    ipv6: Optional[str] = Option(
         None,
         "-6",
         "--ipv6",
