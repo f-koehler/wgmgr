@@ -33,10 +33,10 @@ jobs:
         python -m poetry run pytest
     - name: Lint with mypy
       run: |
-        mypy wgmgr
+        python -m poetry run mypy wgmgr
     - name: Lint with flake8
       run: |
-        flake8 wgmgr
+        python -m poetry run flake8 wgmgr
     - name: Lint with black
       run: |
-        black --check wgmgr
+        python -m poetry run black --check wgmgr
