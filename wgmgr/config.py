@@ -66,9 +66,10 @@ class Config:
             raise ValueError("no IPv4 network specified")
 
         addresses = set(self.get_addresses_ipv4())
-        for address in self.network_ipv4:
-            if address not in addresses:
-                return address
+        for address in self.network_ipv4.hosts():
+            if address in addresses:
+                continue
+            return address
         raise RuntimeError("all IPv4 addresses already taken")
 
     def get_next_ipv6(self) -> IPv6Address:
@@ -76,27 +77,29 @@ class Config:
             raise ValueError("no IPv6 network specified")
 
         addresses = set(self.get_addresses_ipv6())
-        for address in self.network_ipv6:
+        for address in self.network_ipv6.hosts():
             if address not in addresses:
                 return address
         raise RuntimeError("all IPv6 addresses already taken")
+
+    def get_peer(self, name: str) -> Peer | None:
+        for peer in self.peers:
+            if peer.hostname == name:
+                return peer
+        return None
 
     @staticmethod
     def load(path: Path) -> Config:
         yml = load_yaml_file(path)
 
         config = Config(
-            IPv4Network(yml["ipv4_subnet"])
-            if yml.get("ipv4_subnet", None)
-            else None,
-            IPv6Network(yml["ipv6_subnet"])
-            if yml.get("ipv6_subnet", None)
-            else None,
+            IPv4Network(yml["ipv4_subnet"]) if yml.get("ipv4_subnet", None) else None,
+            IPv6Network(yml["ipv6_subnet"]) if yml.get("ipv6_subnet", None) else None,
             default_port=yml["default_port"],
         )
 
         for hostname in yml["peers"]:
-            config.peers.append(Peer(hostname, yml["peers"][hostname]["ipv4"]))
+            config.peers.append(Peer.from_config_entry(yml["peers"][hostname]))
 
         return config
 

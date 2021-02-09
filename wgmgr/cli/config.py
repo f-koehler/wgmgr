@@ -2,33 +2,14 @@ from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
 from typing import Optional
 
-from typer import Argument, BadParameter, Option, Typer
+from typer import Argument, Option, Typer
 
 from wgmgr.config import Config
+from wgmgr.util import validate_port, validate_subnet_ipv4, validate_subnet_ipv6
 
 app = Typer()
 app_set = Typer()
 app.add_typer(app_set, name="set")
-
-
-def validate_subnet_ipv4(value: str) -> str:
-    if value:
-        IPv4Network(value)
-    return value
-
-
-def validate_subnet_ipv6(value: str) -> str:
-    if value:
-        IPv6Network(value)
-    return value
-
-
-def validate_port(value: int) -> int:
-    if (value < 0) or (value > 65535):
-        raise BadParameter(
-            f"Invalid port number {value} (should be in range 0…65535)"
-        )
-    return value
 
 
 @app.command()
@@ -76,9 +57,7 @@ def default_port(
         envvar="WGMGR_CONFIG",
         help="path of the config file",
     ),
-    port: int = Argument(
-        ..., help="default port for peers", callback=validate_port
-    ),
+    port: int = Argument(..., help="default port for peers", callback=validate_port),
 ):
     """Set default port updating all peers that do not have a fixed port."""
     config = Config.load(path)

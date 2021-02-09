@@ -1,5 +1,6 @@
 .venv/
+.vscode/.ropeproject/
 __pycache__/
 poetry.lock
+test.yml
 wgmgr.egg-info/
-.vscode/.ropeproject/
