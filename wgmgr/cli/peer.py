@@ -51,6 +51,17 @@ def new(
     if (config.get_peer(name) is not None) and (not force):
         raise RuntimeError(f'peer "{name}" exists, use -f/--force to overwrite')
 
+    if (
+        (config.network_ipv4 is None)
+        and (ipv4 is None)
+        and (config.network_ipv6 is None)
+        and (ipv6 is None)
+    ):
+        raise RuntimeError(
+            "Config does not contain a IPv4 or IPv6"
+            "and no address specified through -4/--ipv4 and -6/--ipv6"
+        )
+
     peer = Peer(name)
     if port is not None:
         peer.port = port

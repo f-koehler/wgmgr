@@ -37,9 +37,6 @@ def new(
 ):
     """Create a new, empty config."""
 
-    if (ipv4_subnet is None) and (ipv6_subnet is None):
-        raise RuntimeError("Neither an IPv4 nor an IPv4 subnet specified")
-
     config = Config(
         IPv4Network(ipv4_subnet) if ipv4_subnet else None,
         IPv6Network(ipv6_subnet) if ipv6_subnet else None,
