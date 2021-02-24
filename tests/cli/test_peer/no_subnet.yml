@@ -1,0 +1,18 @@
+default_port: 51902
+peers:
+  host1:
+    hostname: host1
+    ipv4: 10.0.0.1
+    ipv4_auto: true
+    port: 51902
+    port_auto: true
+    private_key: mNCzYJ1XBOSFY8DDeOOSGbZQUvWOo0JeUJpotu1QQ0M=
+    public_key: jMNQK1ZIV5FeVCEaAaN/ICJuhcpR2QWmDH5CI8qY9lA=
+  host2:
+    hostname: host2
+    ipv4: 10.0.0.2
+    ipv4_auto: true
+    port: 51902
+    port_auto: true
+    private_key: QJkTUB4lGHRpjiVqo3JUeZ/4Bfpb5leW8KbWjnR2rk8=
+    public_key: PMuPydfC22d2SEkxJo+voDbGCe2+bFlycqw/0703Xmk=
