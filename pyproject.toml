@@ -2,8 +2,35 @@
 name = "wgmgr"
 version = "0.1.1"
 description = "Easily manage wireguard configs."
+license = "GPL-3.0-or-later"
 authors = ["Fabian Köhler <fabian.koehler@protonmail.ch>"]
-license = "GPL-3.0-only"
+maintainers = ["Fabian Köhler <fabian.koehler@protonmail.ch>"]
+readme = "README.md"
+repository = "https://github.com/f-koehler/wgmgr/"
+keywords = ["wireguard", "vpn", "administration"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Telecommunications Industry",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Internet",
+    "Topic :: Security",
+    "Topic :: System",
+    "Topic :: System :: Networking",
+    "Topic :: Utilities",
+    "Typing :: Typed"
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/f-koehler/wgmgr/issues"
+
 
 [tool.poetry.dependencies]
 python = "^3.8"
