@@ -6,7 +6,7 @@ authors = ["Fabian Köhler <fabian.koehler@protonmail.ch>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 Jinja2 = "^2.11.3"
 PyYAML = "^5.4.1"
 typer = "^0.3.2"
