@@ -27,7 +27,7 @@ def new(
         None, "-e2", "--endpoint2", help="peer2 endpoint (domain/address) if applicable"
     ),
     force: bool = Option(
-        False, "-f", "--force", help="whether to overwrite existing hosts"
+        False, "-f", "--force", help="whether to overwrite existing connection"
     ),
 ):
     config = Config.load(path)
