@@ -14,7 +14,7 @@ colorama = "^0.4.4"
 shellingham = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
-mypy = "^0.800"
+mypy = "^0.812"
 pylint = "^2.6.0"
 black = "^20.8b1"
 pytest = "^6.2.2"
