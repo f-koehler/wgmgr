@@ -29,6 +29,17 @@ class Peer:
         self.port: int | None = None
         self.port_auto: bool | None = None
 
+    def get_addresses(self) -> list[IPv4Address | IPv6Address]:
+        result: list[IPv4Address | IPv6Address] = []
+        if self.ipv4_address:
+            result.append(self.ipv4_address)
+        if self.ipv6_address:
+            result.append(self.ipv6_address)
+        return result
+
+    def get_addresses_str(self):
+        return [str(addr) for addr in self.get_addresses()]
+
     def regenerate_key(self):
         self.private_key = keygen.generate_private_key()
         self.public_key = keygen.generate_public_key(self.private_key)

@@ -100,6 +100,16 @@ class Config:
 
         return None
 
+    def get_connections_for_peer(self, peer: str) -> list[Connection]:
+        connections: list[Connection] = []
+        for connection in self.connections:
+            if connection.peer1 == peer:
+                connections.append(connection)
+                continue
+            if connection.peer2 == peer:
+                connections.append(connection)
+        return connections
+
     @staticmethod
     def load(path: Path) -> Config:
         yml = load_yaml_file(path)

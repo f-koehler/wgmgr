@@ -1,0 +1,26 @@
+{% set peer = config.get_peer(peer_name) %}
+[Interface]
+Address = {{ ", ".join(peer.get_addresses_str()) }}
+ListenPort = {{ peer.port }}
+PrivateKey = {{ peer.private_key }}
+
+{% for connection in config.get_connections_for_peer(peer_name) %}
+    {% if connection.peer1 == peer_name %}
+        {% set peer2 = config.get_peer(connection.peer2) %}
+        {% if connection.endpoint2 %}
+            {% set endpoint = connection.endpoint2 %}
+        {% endif %}
+    {% else %}
+        {% set peer2 = config.get_peer(connection.peer1) %}
+        {% if connection.endpoint1 %}
+            {% set endpoint = connection.endpoint1 %}
+        {% endif %}
+    {% endif %}
+[Peer]
+PublicKey = {{ peer2.public_key }}
+PresharedKey = {{ connection.psk }}
+AllowedIPs = {{ ", ".join(peer2.get_addresses_str()) }}
+    {% if endpoint is defined %}
+Endpoint = {{ endpoint }}:{{ peer2.port }}
+    {% endif %}
+{% endfor %}
