@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "wgmgr"
-version = "0.1.0"
+version = "0.1.1"
 description = "Easily manage wireguard configs."
 authors = ["Fabian Köhler <fabian.koehler@protonmail.ch>"]
-license = "MIT"
+license = "GPL-3.0-only"
 
 [tool.poetry.dependencies]
 python = "^3.8"

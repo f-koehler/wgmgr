@@ -4,3 +4,4 @@ __pycache__/
 poetry.lock
 test.yml
 wgmgr.egg-info/
+dist/
