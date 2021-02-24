@@ -90,6 +90,16 @@ class Config:
                 return peer
         return None
 
+    def get_connection(self, peer1: str, peer2: str) -> Connection | None:
+        if peer1 > peer2:
+            peer1, peer2 = peer2, peer1
+
+        for connection in self.connections:
+            if (connection.peer1 == peer1) and (connection.peer2 == peer2):
+                return connection
+
+        return None
+
     @staticmethod
     def load(path: Path) -> Config:
         yml = load_yaml_file(path)
