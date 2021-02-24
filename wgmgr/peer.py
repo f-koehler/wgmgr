@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ipaddress import IPv4Address, IPv6Address
-from typing import Any
+from typing import cast
 
 from . import keygen
 
@@ -33,8 +33,8 @@ class Peer:
         self.private_key = keygen.generate_private_key()
         self.public_key = keygen.generate_public_key(self.private_key)
 
-    def to_config_entry(self) -> dict[str, Any]:
-        yml: dict[str, Any] = {
+    def to_config_entry(self) -> dict[str, str | bool | int]:
+        yml: dict[str, str | bool | int] = {
             "hostname": self.hostname,
             "private_key": self.private_key,
             "public_key": self.public_key,
@@ -61,14 +61,16 @@ class Peer:
         return yml
 
     @staticmethod
-    def from_config_entry(entry: dict[str, Any]) -> Peer:
-        peer = Peer(entry["hostname"], entry["private_key"], entry["public_key"])
+    def from_config_entry(entry: dict[str, str | bool | int]) -> Peer:
+        peer = Peer(
+            str(entry["hostname"]), str(entry["private_key"]), str(entry["public_key"])
+        )
 
         peer.ipv4_address = IPv4Address(entry["ipv4"]) if "ipv4" in entry else None
-        peer.ipv4_auto = entry.get("ipv4_auto", None)
+        peer.ipv4_auto = cast(bool, entry.get("ipv4_auto", None))
         peer.ipv6_address = IPv6Address(entry["ipv6"]) if "ipv6" in entry else None
-        peer.ipv6_auto = entry.get("ipv6_auto", None)
-        peer.port = entry.get("port", None)
-        peer.port_auto = entry.get("port_auto", None)
+        peer.ipv6_auto = cast(bool, entry.get("ipv6_auto", None))
+        peer.port = cast(int, entry.get("port", None))
+        peer.port_auto = cast(bool, entry.get("port_auto", None))
 
         return peer

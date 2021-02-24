@@ -4,6 +4,7 @@ from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 from pathlib import Path
 from typing import Any, Generator
 
+from .connection import Connection
 from .peer import Peer
 from .util import load_yaml_file, write_yaml_file
 
@@ -16,6 +17,7 @@ class Config:
         default_port: int = 51902,
     ):
         self.peers: list[Peer] = []
+        self.connections: list[Connection] = []
         self.network_ipv4 = ipv4_subnet
         self.network_ipv6 = ipv6_subnet
         self.default_port = default_port
@@ -101,6 +103,9 @@ class Config:
         for hostname in yml["peers"]:
             config.peers.append(Peer.from_config_entry(yml["peers"][hostname]))
 
+        for connection in yml["connections"]:
+            config.connections.append(Connection.from_config_entry(connection))
+
         return config
 
     def save(self, path: Path):
@@ -114,5 +119,9 @@ class Config:
 
         for peer in self.peers:
             yml["peers"][peer.hostname] = peer.to_config_entry()
+
+        yml["connections"] = []
+        for connection in self.connections:
+            yml["connections"].append(connection.to_config_entry())
 
         write_yaml_file(path, yml)
