@@ -35,8 +35,16 @@ def new(
         help="default port for new peers",
         callback=util.validate_port,
     ),
+    force: bool = Option(
+        False, "-f", "--force", help="whether to overwrite existing config file"
+    ),
 ):
     """Create a new, empty config."""
+
+    if path.exists() and not force:
+        raise RuntimeError(
+            f'config file "{path}" exists, ' "use -f/--force to overwrite"
+        )
 
     config = Config(
         IPv4Network(ipv4_subnet) if ipv4_subnet else None,

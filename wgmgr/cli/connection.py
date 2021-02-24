@@ -40,7 +40,7 @@ def new(
 
     if config.get_connection(peer1, peer2) and not force:
         raise RuntimeError(
-            f'connection between "{peer1}" and "{peer2}" exists,'
+            f'connection between "{peer1}" and "{peer2}" exists, '
             "use -f/--force to overwrite"
         )
 
