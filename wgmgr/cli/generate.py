@@ -5,6 +5,7 @@ from typing import Optional
 
 from typer import Argument, Option, Typer
 
+from wgmgr.cli import common
 from wgmgr.config import Config
 from wgmgr.templates import load_template
 
@@ -13,13 +14,7 @@ app = Typer()
 
 @app.command()
 def wg_quick(
-    path: Path = Option(
-        ...,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="path of the config file",
-    ),
+    path: Path = common.config_file,
     output: Optional[Path] = Option(
         None, "-o", "--output", help="path for the wg-quick config file"
     ),
@@ -54,13 +49,7 @@ def wg_quick(
 
 @app.command()
 def qr_code(
-    path: Path = Option(
-        ...,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="path of the config file",
-    ),
+    path: Path = common.config_file,
     output: Optional[Path] = Option(
         None, "-o", "--output", help="path for the QR code image file"
     ),

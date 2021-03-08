@@ -6,6 +6,7 @@ from typing import Optional
 from typer import Argument, Option, Typer
 
 from wgmgr import util
+from wgmgr.cli import common
 from wgmgr.config import Config
 
 app = Typer()
@@ -15,13 +16,7 @@ app.add_typer(app_set, name="set")
 
 @app.command()
 def new(
-    path: Path = Option(
-        ...,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="path of the config file",
-    ),
+    path: common.config_file,
     ipv4_subnet: Optional[str] = Option(
         None, "-4", "--ipv4", help="IPv4 subnet", callback=util.validate_subnet_ipv4
     ),
@@ -55,28 +50,14 @@ def new(
 
 
 @app.command()
-def edit(
-    path: Path = Option(
-        ...,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="path of the config file",
-    )
-):
+def edit(path: Path = common.config_file):
     editor = util.get_editor()
     subprocess.run([str(editor), str(path)])
 
 
 @app_set.command()
 def default_port(
-    path: Path = Option(
-        ...,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="path of the config file",
-    ),
+    path: Path = common.config_file,
     port: int = Argument(
         ..., help="default port for peers", callback=util.validate_port
     ),
@@ -89,13 +70,7 @@ def default_port(
 
 @app_set.command()
 def ipv4_subnet(
-    path: Path = Option(
-        ...,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="path of the config file",
-    ),
+    path: Path = common.config_file,
     subnet: str = Argument(
         ..., help="IPv4 subnet in CIDR notation", callback=util.validate_subnet_ipv4
     ),
@@ -108,13 +83,7 @@ def ipv4_subnet(
 
 @app_set.command()
 def ipv6_subnet(
-    path: Path = Option(
-        ...,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="path of the config file",
-    ),
+    path: Path = common.config_file,
     subnet: str = Argument(
         ..., help="IPv6 subnet in CIDR notation", callback=util.validate_subnet_ipv6
     ),

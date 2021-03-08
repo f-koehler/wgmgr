@@ -3,6 +3,7 @@ from typing import Optional
 
 from typer import Option, Typer
 
+from wgmgr.cli import common
 from wgmgr.config import Config
 from wgmgr.connection import Connection
 
@@ -11,13 +12,7 @@ app = Typer()
 
 @app.command()
 def new(
-    path: Path = Option(
-        ...,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="path of the config file",
-    ),
+    path: Path = common.config_file,
     peer1: str = Option(..., "-p1", "--peer1", help="first peer of the connection"),
     peer2: str = Option(..., "-p2", "--peer2", help="second peer of the connection"),
     endpoint1: Optional[str] = Option(

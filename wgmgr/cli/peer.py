@@ -4,6 +4,7 @@ from typing import Optional
 
 from typer import Argument, Option, Typer
 
+from wgmgr.cli import common
 from wgmgr.config import Config
 from wgmgr.peer import Peer
 from wgmgr.util import validate_address_ipv4, validate_address_ipv6, validate_port
@@ -14,13 +15,7 @@ app = Typer()
 @app.command()
 def new(
     name: str = Argument(..., help="hostname for the new peer"),
-    path: Path = Option(
-        ...,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="path of the config file",
-    ),
+    path: Path = common.config_file,
     ipv4: Optional[str] = Option(
         None,
         "-4",
@@ -90,15 +85,7 @@ def new(
 
 
 @app.command()
-def list(
-    path: Path = Option(
-        ...,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="path to the config file",
-    )
-):
+def list(path: Path = common.config_file):
     config = Config.load(path)
     for peer in config.peers:
         print(peer.to_config_entry())
