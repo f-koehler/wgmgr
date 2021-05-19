@@ -111,14 +111,42 @@ class MainConfig:
                 return peer
         raise UnknownPeerError(name)
 
+    def get_used_ipv4_addresses(self) -> list[IPv4Address]:
+        result: list[IPv4Address] = []
+        for peer in self.peers:
+            if peer.ipv4:
+                result.append(peer.ipv4.value)
+        return result
+
+    def get_used_ipv6_addresses(self) -> list[IPv6Address]:
+        result: list[IPv6Address] = []
+        for peer in self.peers:
+            if peer.ipv6:
+                result.append(peer.ipv6.value)
+        return result
+
     def get_next_ipv4(self) -> IPv4Address | None:
-        if self.ipv4_network is None:
+        if not self.ipv4_network:
             return None
+
+        used = self.get_used_ipv4_addresses()
+        for address in self.ipv4_network.hosts():
+            if address in used:
+                continue
+            return address
+
         raise FreeAddressError("IPv4")
 
     def get_next_ipv6(self) -> IPv6Address | None:
-        if self.ipv6_network is None:
+        if not self.ipv6_network:
             return None
+
+        used = self.get_used_ipv6_addresses()
+        for address in self.ipv6_network.hosts():
+            if address in used:
+                continue
+            return address
+
         raise FreeAddressError("IPv6")
 
     def serialize(self) -> dict[str, Any]:
