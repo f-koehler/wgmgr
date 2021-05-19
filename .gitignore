@@ -5,3 +5,5 @@ poetry.lock
 test.yml
 wgmgr.egg-info/
 dist/
+.mypy_cache/
+.pytest_cache/
