@@ -36,6 +36,7 @@ classifiers = [
 python = "^3.8"
 Jinja2 = "^2.11.3"
 PyYAML = "^5.4.1"
+typer = {extras = ["all"], version = "^0.3.2"}
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.812"
@@ -49,8 +50,8 @@ rope = "^0.18.0"
 flake8 = "^3.8.4"
 lxml = "^4.6.2"
 
-# [tool.poetry.scripts]
-# wgmgr = "wgmgr.cli.main:app"
+[tool.poetry.scripts]
+wgmgr = "wgmgr.cli:app"
 
 [build-system]
 requires = ["poetry>=0.12"]

@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import logging
+import os
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
+from pathlib import Path
 from typing import Any
+
+import yaml
 
 from wgmgr import keygen
 from wgmgr.config.p2p import PointToPointConfig
@@ -13,13 +17,29 @@ from wgmgr.util import AutoAssignable
 LOGGER = logging.getLogger(__name__)
 
 
-class GlobalConfig:
-    def __init__(self):
-        self.ipv4_network: IPv4Network | None
-        self.ipv6_network: IPv6Network | None
-        self.default_port: int
-        self.peers: list[PeerConfig]
-        self.point_to_point: list[PointToPointConfig]
+class MainConfig:
+    def __init__(
+        self,
+        default_port: int,
+        ipv4_network: IPv4Network | None = None,
+        ipv6_network: IPv6Network | None = None,
+    ):
+        self.ipv4_network = ipv4_network
+        self.ipv6_network = ipv6_network
+        self.default_port = default_port
+        self.peers: list[PeerConfig] = []
+        self.point_to_point: list[PointToPointConfig] = []
+
+    def save(self, path: Path):
+        with os.fdopen(
+            os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, mode=0o600), "w"
+        ) as fptr:
+            yaml.dump(self.serialize(), fptr, yaml.CDumper)
+
+    @staticmethod
+    def load(path: Path) -> MainConfig:
+        with os.fdopen(os.open(path, os.O_RDONLY, mode=0o600), "r") as fptr:
+            return MainConfig.deserialize(yaml.load(fptr, yaml.CLoader))
 
     def set_default_port(self, port: int):
         if port == self.default_port:
@@ -111,15 +131,12 @@ class GlobalConfig:
         }
 
     @staticmethod
-    def deserialize(data: dict[str, Any]) -> GlobalConfig:
-        config = GlobalConfig()
-        config.ipv4_network = (
-            IPv4Network(data["ipv4_network"]) if data["ipv4_network"] else None
+    def deserialize(data: dict[str, Any]) -> MainConfig:
+        config = MainConfig(
+            int(data["default_port"]),
+            IPv4Network(data["ipv4_network"]) if data["ipv4_network"] else None,
+            IPv6Network(data["ipv6_network"]) if data["ipv6_network"] else None,
         )
-        config.ipv6_network = (
-            IPv6Network(data["ipv6_network"]) if data["ipv6_network"] else None
-        )
-        config.default_port = int(data["default_port"])
         config.peers = [PeerConfig.deserialize(entry) for entry in data["peers"]]
         config.point_to_point = [
             PointToPointConfig.deserialize(entry) for entry in data["point_to_point"]
