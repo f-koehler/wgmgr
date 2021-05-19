@@ -57,29 +57,32 @@ def new(
         "-c",
         "--config",
         envvar="WGMGR_CONFIG",
-        help="path of the config file",
+        help="Path of the config file.",
     ),
     ipv4_network: str = Option(
         "10.0.0.0/24",
         "-4",
         "--ipv4",
         callback=validate_ipv4_network,
-        help="IPv4 network in CIDR notation or empty string to disable IPv4",
+        help="IPv4 network in CIDR notation or empty string to disable IPv4.",
     ),
     ipv6_network: str = Option(
         "fd00:641:c767:bc00::/64",
         "-6",
         "--ipv6",
         callback=validate_ipv6_network,
-        help="IPv4 network in CIDR notation or empty string to disable IPv6",
+        help="IPv4 network in CIDR notation or empty string to disable IPv6.",
     ),
     default_port: int = Option(
-        "51820", "-p", "--port", callback=validate_port, help="default port for peers"
+        "51820", "-p", "--port", callback=validate_port, help="Default port for peers."
     ),
     force: bool = Option(
-        False, "-f", "--force", help="whether to overwrite an existing config file"
+        False, "-f", "--force", help="Force overwriting of existing config file"
     ),
 ):
+    """
+    Create a new empty config file.
+    """
     if config_path.exists() and (not force):
         echo(
             f'config file "{config_path}" exists, add -f/--force flag to overwrite',
@@ -91,3 +94,23 @@ def new(
         default_port, IPv4Network(ipv4_network), IPv6Network(ipv6_network)
     )
     config.save(config_path)
+
+
+@app.command()
+def set_port(
+    config_path: Path = Option(
+        DEFAULT_CONFIG_PATH,
+        "-c",
+        "--config",
+        envvar="WGMGR_CONFIG",
+        help="Path of the config file.",
+    ),
+    port: int = Option(
+        "51820", "-p", "--port", callback=validate_port, help="Default port for peers."
+    ),
+):
+    """
+    Set the default port and upate all peers that use the default.
+    """
+    config = MainConfig.load(config_path)
+    config.set_default_port(port)
