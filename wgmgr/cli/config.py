@@ -20,7 +20,7 @@ def validate_port(port: str) -> str:
     return port
 
 
-def validate_ipv4_network(cidr: str) -> str:
+def validate_ipv4_network(cidr: str, required_hosts: int = 2) -> str:
     if cidr == "":
         return cidr
 
@@ -28,14 +28,14 @@ def validate_ipv4_network(cidr: str) -> str:
     counter = 0
     for _ in net.hosts():
         counter += 1
-        if counter >= 2:
+        if counter >= required_hosts:
             break
-    if counter < 2:
+    if counter < required_hosts:
         raise BadParameter("IPv4Network should contain at least 2 hosts")
     return cidr
 
 
-def validate_ipv6_network(cidr: str) -> str:
+def validate_ipv6_network(cidr: str, required_hosts: int = 2) -> str:
     if cidr == "":
         return cidr
 
@@ -43,9 +43,9 @@ def validate_ipv6_network(cidr: str) -> str:
     counter = 0
     for _ in net.hosts():
         counter += 1
-        if counter >= 2:
+        if counter >= required_hosts:
             break
-    if counter < 2:
+    if counter < required_hosts:
         raise BadParameter("IPv6Network should contain at least 2 hosts")
     return cidr
 
@@ -105,12 +105,63 @@ def set_port(
         envvar="WGMGR_CONFIG",
         help="Path of the config file.",
     ),
-    port: int = Option(
-        "51820", "-p", "--port", callback=validate_port, help="Default port for peers."
-    ),
+    port: int = Option("51820", callback=validate_port, help="Default port for peers."),
 ):
     """
     Set the default port and upate all peers that use the default.
     """
     config = MainConfig.load(config_path)
     config.set_default_port(port)
+    config.save(config_path)
+
+
+@app.command()
+def set_ipv4(
+    config_path: Path = Option(
+        DEFAULT_CONFIG_PATH,
+        "-c",
+        "--config",
+        envvar="WGMGR_CONFIG",
+        help="Path of the config file.",
+    ),
+    ipv4_network: str = Option(
+        "10.0.0.0/24",
+        callback=validate_ipv4_network,
+        help="IPv4 network in CIDR notation or empty string to disable IPv4.",
+    ),
+):
+    """
+    Set the IPv4 subnet to use and update peers accordingly.
+
+    This will regenerate all automatically assigned IPv4 addresses but also manually set
+    ones which are not contained in the new subnet.
+    """
+    config = MainConfig.load(config_path)
+    config.set_ipv4_network(IPv4Network(ipv4_network))
+    config.save(config_path)
+
+
+@app.command()
+def set_ipv6(
+    config_path: Path = Option(
+        DEFAULT_CONFIG_PATH,
+        "-c",
+        "--config",
+        envvar="WGMGR_CONFIG",
+        help="Path of the config file.",
+    ),
+    ipv6_network: str = Option(
+        "fd00:641:c767:bc00::/64",
+        callback=validate_ipv4_network,
+        help="IPv6 network in CIDR notation or empty string to disable IPv4.",
+    ),
+):
+    """
+    Set the IPv6 subnet to use and update peers accordingly.
+
+    This will regenerate all automatically assigned IPv6 addresses but also manually set
+    ones which are not contained in the new subnet.
+    """
+    config = MainConfig.load(config_path)
+    config.set_ipv6_network(IPv6Network(ipv6_network))
+    config.save(config_path)

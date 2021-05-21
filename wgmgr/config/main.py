@@ -4,7 +4,7 @@ import logging
 import os
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 
@@ -51,6 +51,42 @@ class MainConfig:
             if peer.port.auto_assigned:
                 LOGGER.info("set port to %d for peer %s", port, peer.name)
                 peer.port.value = port
+
+    def set_ipv4_network(self, network: IPv4Network):
+        self.ipv4_network = network
+        for peer in self.peers:
+            if peer.ipv4:
+                if peer.ipv4.value in self.ipv4_network:
+                    continue
+                if not peer.ipv4.auto_assigned:
+                    LOGGER.warn(
+                        f"udpating IPv4 address of peer {peer} as it is not "
+                        "included in the new network"
+                    )
+                peer.ipv4.value = cast(IPv4Address, self.get_next_ipv4())
+                peer.ipv4.auto_assigned = True
+            else:
+                peer.ipv4 = AutoAssignable[IPv4Address](
+                    cast(IPv4Address, self.get_next_ipv4()), True
+                )
+
+    def set_ipv6_network(self, network: IPv6Network):
+        self.ipv6_network = network
+        for peer in self.peers:
+            if peer.ipv6:
+                if peer.ipv6.value in self.ipv6_network:
+                    continue
+                if not peer.ipv6.auto_assigned:
+                    LOGGER.warn(
+                        f"udpating manual IPv6 address of peer {peer} as it is not "
+                        "included in the new network"
+                    )
+                peer.ipv6.value = cast(IPv6Address, self.get_next_ipv6())
+                peer.ipv6.auto_assigned = True
+            else:
+                peer.ipv6 = AutoAssignable[IPv6Address](
+                    cast(IPv6Address, self.get_next_ipv6()), True
+                )
 
     def add_peer(
         self,
