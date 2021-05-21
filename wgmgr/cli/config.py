@@ -10,7 +10,7 @@ from wgmgr.config.main import MainConfig
 app = Typer()
 
 
-DEFAULT_CONFIG_PATH = Path("/") / "etc" / "wgmgr.conf"
+DEFAULT_CONFIG_PATH = Path("wgmgr.yml")
 
 
 def validate_port(port: str) -> str:
@@ -164,4 +164,21 @@ def set_ipv6(
     """
     config = MainConfig.load(config_path)
     config.set_ipv6_network(IPv6Network(ipv6_network))
+    config.save(config_path)
+
+
+@app.command()
+def migrate(
+    config_path: Path = Option(
+        DEFAULT_CONFIG_PATH,
+        "-c",
+        "--config",
+        envvar="WGMGR_CONFIG",
+        help="Path of the config file.",
+    )
+):
+    """
+    Load config file, migrate it to the newest version and save it.
+    """
+    config = MainConfig.load(config_path)
     config.save(config_path)
