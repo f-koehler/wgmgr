@@ -1,11 +1,18 @@
 from __future__ import annotations
 
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
+from logging import getLogger
 from typing import Any
 
+from wgmgr.config.main.migrations import load_migration
 from wgmgr.config.p2p import PointToPointConfig
 from wgmgr.config.peer import PeerConfig
-from wgmgr.error import FreeAddressError, UnknownPeerError
+from wgmgr.error import ConfigVersionError, FreeAddressError, UnknownPeerError
+
+CURRENT_CONFIG_VERSION = 1
+
+
+LOGGER = getLogger(__name__)
 
 
 class MainConfigBase:
@@ -15,11 +22,23 @@ class MainConfigBase:
         ipv4_network: IPv4Network | None = None,
         ipv6_network: IPv6Network | None = None,
     ):
+        self.config_version = CURRENT_CONFIG_VERSION
         self.ipv4_network = ipv4_network
         self.ipv6_network = ipv6_network
         self.default_port = default_port
         self.peers: list[PeerConfig] = []
         self.point_to_point: list[PointToPointConfig] = []
+
+    @staticmethod
+    def migrate(data: dict[str, Any]) -> dict[str, Any]:
+        while int(data["version"]) < CURRENT_CONFIG_VERSION:
+            LOGGER.info(
+                "migrate config from version %d to %d",
+                int(data["version"]),
+                int(data["version"]) + 1,
+            )
+            data = load_migration(data["version"])(data)
+        return data
 
     def get_peer(self, name: str) -> PeerConfig:
         for peer in self.peers:
@@ -67,6 +86,7 @@ class MainConfigBase:
 
     def serialize(self) -> dict[str, Any]:
         return {
+            "version": self.config_version,
             "ipv4_network": str(self.ipv4_network) if self.ipv4_network else None,
             "ipv6_network": str(self.ipv6_network) if self.ipv6_network else None,
             "default_port": self.default_port,
@@ -76,6 +96,13 @@ class MainConfigBase:
 
     @staticmethod
     def deserialize(data: dict[str, Any]) -> MainConfigBase:
+        version = int(data["version"])
+        if version > CURRENT_CONFIG_VERSION:
+            raise ConfigVersionError(version, CURRENT_CONFIG_VERSION)
+
+        if version < CURRENT_CONFIG_VERSION:
+            data = MainConfigBase.migrate(data)
+
         config = MainConfigBase(
             int(data["default_port"]),
             IPv4Network(data["ipv4_network"]) if data["ipv4_network"] else None,
