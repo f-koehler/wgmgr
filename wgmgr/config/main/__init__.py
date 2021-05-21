@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 import logging
+import os
 from ipaddress import IPv4Network, IPv6Network
+from pathlib import Path
+from typing import cast
+
+import yaml
 
 import wgmgr.config.main.operations.config as ops_config
 import wgmgr.config.main.operations.peer as ops_peer
@@ -14,8 +19,8 @@ LOGGER = logging.getLogger(__name__)
 class MainConfig(MainConfigBase):
     add_peer = ops_peer.add_peer
     set_default_port = ops_config.set_default_port
-    ipv4_set_network = ops_config.set_ipv4_network
-    ipv6_set_network = ops_config.set_ipv6_network
+    set_ipv4_network = ops_config.set_ipv4_network
+    set_ipv6_network = ops_config.set_ipv6_network
 
     def __init__(
         self,
@@ -44,3 +49,16 @@ class MainConfig(MainConfigBase):
             elif p2p.host2_public_key == old_public_key:
                 p2p.host2_public_key = peer.public_key
                 p2p.preshared_key = keygen.generate_psk()
+
+    def save(self, path: Path):
+        with os.fdopen(
+            os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, mode=0o600), "w"
+        ) as fptr:
+            yaml.dump(self.serialize(), fptr, yaml.CDumper)
+
+    @staticmethod
+    def load(path: Path) -> MainConfig:
+        with os.fdopen(os.open(path, os.O_RDONLY, mode=0o600), "r") as fptr:
+            return cast(
+                MainConfig, MainConfigBase.deserialize(yaml.load(fptr, yaml.CLoader))
+            )

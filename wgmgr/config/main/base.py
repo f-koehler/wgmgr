@@ -1,11 +1,7 @@
 from __future__ import annotations
 
-import os
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
-from pathlib import Path
 from typing import Any
-
-import yaml
 
 from wgmgr.config.p2p import PointToPointConfig
 from wgmgr.config.peer import PeerConfig
@@ -91,14 +87,3 @@ class MainConfigBase:
         ]
 
         return config
-
-    def save(self, path: Path):
-        with os.fdopen(
-            os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, mode=0o600), "w"
-        ) as fptr:
-            yaml.dump(self.serialize(), fptr, yaml.CDumper)
-
-    @staticmethod
-    def load(path: Path) -> MainConfigBase:
-        with os.fdopen(os.open(path, os.O_RDONLY, mode=0o600), "r") as fptr:
-            return MainConfigBase.deserialize(yaml.load(fptr, yaml.CLoader))
