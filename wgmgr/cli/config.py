@@ -3,79 +3,20 @@ from __future__ import annotations
 from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
 
-from typer import BadParameter, Option, Typer, echo
+from typer import Option, Typer, echo
 
+from wgmgr.cli import common
 from wgmgr.config.main import MainConfig
 
 app = Typer()
 
 
-DEFAULT_CONFIG_PATH = Path("wgmgr.yml")
-
-
-def validate_port(port: str) -> str:
-    number = int(port)
-    if (number < 1) or (number > 65535):
-        raise BadParameter("port number must be in the range 1…65535")
-    return port
-
-
-def validate_ipv4_network(cidr: str, required_hosts: int = 2) -> str:
-    if cidr == "":
-        return cidr
-
-    net = IPv4Network(cidr)
-    counter = 0
-    for _ in net.hosts():
-        counter += 1
-        if counter >= required_hosts:
-            break
-    if counter < required_hosts:
-        raise BadParameter("IPv4Network should contain at least 2 hosts")
-    return cidr
-
-
-def validate_ipv6_network(cidr: str, required_hosts: int = 2) -> str:
-    if cidr == "":
-        return cidr
-
-    net = IPv6Network(cidr)
-    counter = 0
-    for _ in net.hosts():
-        counter += 1
-        if counter >= required_hosts:
-            break
-    if counter < required_hosts:
-        raise BadParameter("IPv6Network should contain at least 2 hosts")
-    return cidr
-
-
 @app.command()
 def new(
-    config_path: Path = Option(
-        DEFAULT_CONFIG_PATH,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="Path of the config file.",
-    ),
-    ipv4_network: str = Option(
-        "10.0.0.0/24",
-        "-4",
-        "--ipv4",
-        callback=validate_ipv4_network,
-        help="IPv4 network in CIDR notation or empty string to disable IPv4.",
-    ),
-    ipv6_network: str = Option(
-        "fd00:641:c767:bc00::/64",
-        "-6",
-        "--ipv6",
-        callback=validate_ipv6_network,
-        help="IPv4 network in CIDR notation or empty string to disable IPv6.",
-    ),
-    default_port: int = Option(
-        "51820", "-p", "--port", callback=validate_port, help="Default port for peers."
-    ),
+    config_path: Path = common.OPTION_CONFIG_PATH,
+    ipv4_network: str | None = common.OPTION_IPV4_NETWORK,
+    ipv6_network: str | None = common.OPTION_IPV6_NETWORK,
+    default_port: int | None = common.OPTION_PORT,
     force: bool = Option(
         False, "-f", "--force", help="Force overwriting of existing config file"
     ),
@@ -90,6 +31,15 @@ def new(
         )
         exit(1)
 
+    if default_port is None:
+        default_port = 51820
+
+    if ipv4_network is None:
+        ipv4_network = "10.0.0.0/24"
+
+    if ipv6_network is None:
+        ipv6_network = "fd00:641:c767:bc00::/64"
+
     config = MainConfig(
         default_port, IPv4Network(ipv4_network), IPv6Network(ipv6_network)
     )
@@ -97,85 +47,36 @@ def new(
 
 
 @app.command()
-def set_port(
-    config_path: Path = Option(
-        DEFAULT_CONFIG_PATH,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="Path of the config file.",
-    ),
-    port: int = Option("51820", callback=validate_port, help="Default port for peers."),
+def set(
+    config_path: Path = common.OPTION_CONFIG_PATH,
+    port: int | None = common.OPTION_PORT,
+    ipv4_network: str | None = common.OPTION_IPV4_NETWORK,
+    ipv6_network: str | None = common.OPTION_IPV6_NETWORK,
 ):
     """
-    Set the default port and upate all peers that use the default.
+    Change default properties of the config and update peers accordingly.
+
+    If a new IPv4/IPv6 subnet is specified, all automatically assigned IPv4/IPv6
+    addresses will be regenerated. Manually set IP addresses will be overwritten
+    if they are not contained in the new subnet.
+
+    If a new port is specified, all peers that do not have a manually assigned port
+    will be set to use the new default.
     """
+
     config = MainConfig.load(config_path)
-    config.set_default_port(port)
-    config.save(config_path)
-
-
-@app.command()
-def set_ipv4(
-    config_path: Path = Option(
-        DEFAULT_CONFIG_PATH,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="Path of the config file.",
-    ),
-    ipv4_network: str = Option(
-        "10.0.0.0/24",
-        callback=validate_ipv4_network,
-        help="IPv4 network in CIDR notation or empty string to disable IPv4.",
-    ),
-):
-    """
-    Set the IPv4 subnet to use and update peers accordingly.
-
-    This will regenerate all automatically assigned IPv4 addresses but also manually set
-    ones which are not contained in the new subnet.
-    """
-    config = MainConfig.load(config_path)
-    config.set_ipv4_network(IPv4Network(ipv4_network))
-    config.save(config_path)
-
-
-@app.command()
-def set_ipv6(
-    config_path: Path = Option(
-        DEFAULT_CONFIG_PATH,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="Path of the config file.",
-    ),
-    ipv6_network: str = Option(
-        "fd00:641:c767:bc00::/64",
-        callback=validate_ipv4_network,
-        help="IPv6 network in CIDR notation or empty string to disable IPv4.",
-    ),
-):
-    """
-    Set the IPv6 subnet to use and update peers accordingly.
-
-    This will regenerate all automatically assigned IPv6 addresses but also manually set
-    ones which are not contained in the new subnet.
-    """
-    config = MainConfig.load(config_path)
-    config.set_ipv6_network(IPv6Network(ipv6_network))
+    if port is not None:
+        config.set_default_port(port)
+    if ipv4_network is not None:
+        config.set_ipv4_network(IPv4Network(ipv4_network))
+    if ipv6_network is not None:
+        config.set_ipv6_network(IPv6Network(ipv6_network))
     config.save(config_path)
 
 
 @app.command()
 def migrate(
-    config_path: Path = Option(
-        DEFAULT_CONFIG_PATH,
-        "-c",
-        "--config",
-        envvar="WGMGR_CONFIG",
-        help="Path of the config file.",
-    )
+    config_path: Path = common.OPTION_CONFIG_PATH,
 ):
     """
     Load config file, migrate it to the newest version and save it.

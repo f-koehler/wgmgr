@@ -59,6 +59,8 @@ class MainConfig(MainConfigBase):
     @staticmethod
     def load(path: Path) -> MainConfig:
         with os.fdopen(os.open(path, os.O_RDONLY, mode=0o600), "r") as fptr:
-            return cast(
+            obj = cast(
                 MainConfig, MainConfigBase.deserialize(yaml.load(fptr, yaml.CLoader))
             )
+            obj.__class__ = MainConfig
+            return obj

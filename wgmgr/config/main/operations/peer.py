@@ -6,8 +6,8 @@ from ipaddress import IPv4Address, IPv6Address
 from wgmgr import keygen
 from wgmgr.config.main.base import MainConfigBase
 from wgmgr.config.peer import PeerConfig
-from wgmgr.error import DuplicatePeerError
-from wgmgr.util import AutoAssignable
+from wgmgr.error import DuplicatePeerError, UnknownPeerError
+from wgmgr.util import AssignableIPv4, AssignableIPv6, AssignablePort
 
 LOGGER = logging.getLogger(__name__)
 
@@ -19,28 +19,32 @@ def add_peer(
     ipv6: IPv6Address | None = None,
     port: int | None = None,
 ):
-    for peer in self.peers:
-        if peer.name == name:
-            raise DuplicatePeerError(name)
+    try:
+        self.get_peer(name)
+        raise DuplicatePeerError(name)
+    except UnknownPeerError:
+        pass
 
     private_key = keygen.generate_private_key()
     peer = PeerConfig(name, private_key, keygen.generate_public_key(private_key))
 
     if ipv4:
-        peer.ipv4 = AutoAssignable[IPv4Address](ipv4, False)
+        peer.ipv4 = AssignableIPv4(ipv4, False)
     else:
         if ipv4 := self.get_next_ipv4():
-            LOGGER.info("assign IPv4 address %s to peer %s", str(ipv4), peer)
-            peer.ipv4 = AutoAssignable[IPv4Address](ipv4, True)
+            LOGGER.info("assign IPv4 address %s to peer %s", str(ipv4), peer.name)
+            peer.ipv4 = AssignableIPv4(ipv4, True)
 
     if ipv6:
-        peer.ipv6 = AutoAssignable[IPv6Address](ipv6, False)
+        peer.ipv6 = AssignableIPv6(ipv6, False)
     else:
         if ipv6 := self.get_next_ipv6():
-            LOGGER.info("assign IPv6 address %s to peer %s", str(ipv6), peer)
-            peer.ipv6 = AutoAssignable[IPv6Address](ipv6, True)
+            LOGGER.info("assign IPv6 address %s to peer %s", str(ipv6), peer.name)
+            peer.ipv6 = AssignableIPv6(ipv6, True)
 
     if port:
-        peer.port = AutoAssignable[int](port, False)
+        peer.port = AssignablePort(port, False)
     else:
-        peer.port = AutoAssignable[int](self.default_port, True)
+        peer.port = AssignablePort(self.default_port, True)
+
+    self.peers.append(peer)

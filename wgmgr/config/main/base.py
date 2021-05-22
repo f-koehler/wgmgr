@@ -50,14 +50,14 @@ class MainConfigBase:
         result: list[IPv4Address] = []
         for peer in self.peers:
             if peer.ipv4:
-                result.append(peer.ipv4.value)
+                result.append(peer.ipv4.address)
         return result
 
     def get_used_ipv6_addresses(self) -> list[IPv6Address]:
         result: list[IPv6Address] = []
         for peer in self.peers:
             if peer.ipv6:
-                result.append(peer.ipv6.value)
+                result.append(peer.ipv6.address)
         return result
 
     def get_next_ipv4(self) -> IPv4Address | None:

@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from ipaddress import IPv4Address, IPv6Address
 from typing import Any
 
-from wgmgr.util import AutoAssignable
+from wgmgr.util import AssignableIPv4, AssignableIPv6, AssignablePort
 
 
 class PeerConfig:
     def __init__(self, name: str, private_key: str, public_key: str):
-        self.name: str
-        self.private_key: str
-        self.public_key: str
-        self.ipv4: AutoAssignable[IPv4Address] | None
-        self.ipv6: AutoAssignable[IPv6Address] | None
-        self.port: AutoAssignable[int]
+        self.name: str = name
+        self.private_key: str = private_key
+        self.public_key: str = public_key
+        self.ipv4: AssignableIPv4 | None
+        self.ipv6: AssignableIPv6 | None
+        self.port: AssignablePort
 
     def serialize(self) -> dict[str, Any]:
         return {
@@ -28,15 +27,7 @@ class PeerConfig:
     @staticmethod
     def deserialize(data: dict[str, Any]) -> PeerConfig:
         config = PeerConfig(data["name"], data["private_key"], data["public_key"])
-        config.ipv4 = (
-            AutoAssignable[IPv4Address].deserialize(data["ipv4"])
-            if data["ipv4"]
-            else None
-        )
-        config.ipv6 = (
-            AutoAssignable[IPv6Address].deserialize(data["ipv6"])
-            if data["ipv6"]
-            else None
-        )
-        config.port = AutoAssignable[int].deserialize(data["port"])
+        config.ipv4 = AssignableIPv4.deserialize(data["ipv4"]) if data["ipv4"] else None
+        config.ipv6 = AssignableIPv6.deserialize(data["ipv6"]) if data["ipv6"] else None
+        config.port = AssignablePort.deserialize(data["port"])
         return config
