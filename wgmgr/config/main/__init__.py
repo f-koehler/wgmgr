@@ -18,6 +18,7 @@ LOGGER = logging.getLogger(__name__)
 
 class MainConfig(MainConfigBase):
     add_peer = ops_peer.add_peer
+    remove_peer = ops_peer.remove_peer
     set_default_port = ops_config.set_default_port
     set_ipv4_network = ops_config.set_ipv4_network
     set_ipv6_network = ops_config.set_ipv6_network

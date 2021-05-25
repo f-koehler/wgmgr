@@ -48,3 +48,7 @@ def add_peer(
         peer.port = AssignablePort(self.default_port, True)
 
     self.peers.append(peer)
+
+
+def remove_peer(self: MainConfigBase, name: str):
+    self.peers.remove(self.get_peer(name))
