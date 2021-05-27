@@ -4,6 +4,7 @@ from typing import Optional
 from typer import Argument, Option, Typer
 
 from wgmgr.cli import common
+from wgmgr.config.main import MainConfig
 
 app = Typer()
 
@@ -20,7 +21,9 @@ def add(
     ),
     config_path: Path = common.OPTION_CONFIG_PATH,
 ):
-    pass
+    config = MainConfig.load(config_path)
+    config.add_p2p(peer1, peer2, endpoint1, endpoint2)
+    config.save(config_path)
 
 
 @app.command()

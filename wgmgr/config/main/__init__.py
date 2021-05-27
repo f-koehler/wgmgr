@@ -9,6 +9,7 @@ from typing import cast
 import yaml
 
 import wgmgr.config.main.operations.config as ops_config
+import wgmgr.config.main.operations.p2p as ops_p2p
 import wgmgr.config.main.operations.peer as ops_peer
 from wgmgr import keygen
 from wgmgr.config.main.base import MainConfigBase
@@ -23,6 +24,7 @@ class MainConfig(MainConfigBase):
     set_ipv4_network = ops_config.set_ipv4_network
     set_ipv6_network = ops_config.set_ipv6_network
     generate_peer_config = ops_peer.generate_peer_config
+    add_p2p = ops_p2p.add_p2p
 
     def __init__(
         self,
@@ -39,17 +41,13 @@ class MainConfig(MainConfigBase):
     def regenerate_keys_for_peer(self, name: str):
         peer = self.get_peer(name)
 
-        old_public_key = peer.public_key
-
         peer.private_key = keygen.generate_private_key()
         peer.public_key = keygen.generate_public_key(peer.private_key)
 
         for p2p in self.point_to_point:
-            if p2p.host1_public_key == old_public_key:
-                p2p.host1_public_key = peer.public_key
+            if p2p.peer1_name == name:
                 p2p.preshared_key = keygen.generate_psk()
-            elif p2p.host2_public_key == old_public_key:
-                p2p.host2_public_key = peer.public_key
+            elif p2p.peer2_name == name:
                 p2p.preshared_key = keygen.generate_psk()
 
     def save(self, path: Path):

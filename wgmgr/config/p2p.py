@@ -2,34 +2,43 @@ from __future__ import annotations
 
 from typing import Any
 
+from wgmgr import keygen
+
 
 class PointToPointConfig:
-    def __init__(self):
-        self.host1_public_key: str
-        self.host2_public_key: str
-        self.host1_endpoint: str | None
-        self.host2_endpoint: str | None
-        self.preshared_key: str
+    def __init__(
+        self,
+        name1: str,
+        name2: str,
+        endpoint1: str | None = None,
+        endpoint2: str | None = None,
+    ):
+        self.peer1_name = name1
+        self.peer2_name = name2
+        self.peer1_endpoint = endpoint1
+        self.peer2_endpoint = endpoint2
+        self.preshared_key = keygen.generate_psk()
 
     def serialize(self) -> dict[str, Any]:
         return {
-            "host1": {
-                "public_key": self.host1_public_key,
-                "endpoint": self.host1_endpoint if self.host1_endpoint else None,
+            "peer1": {
+                "name": self.peer1_name,
+                "endpoint": self.peer1_endpoint if self.peer1_endpoint else None,
             },
-            "host2": {
-                "public_key": self.host2_public_key,
-                "endpoint": self.host2_endpoint if self.host2_endpoint else None,
+            "peer2": {
+                "name": self.peer2_name,
+                "endpoint": self.peer2_endpoint if self.peer2_endpoint else None,
             },
             "preshared_key": self.preshared_key,
         }
 
     @staticmethod
     def deserialize(data: dict[str, Any]) -> PointToPointConfig:
-        config = PointToPointConfig()
-        config.host1_public_key = data["host1"]["public_key"]
-        config.host1_endpoint = data["host1"]["endpoint"]
-        config.host2_public_key = data["host2"]["public_key"]
-        config.host2_endpoint = data["host2"]["endpoint"]
+        config = PointToPointConfig(
+            data["peer1"]["name"],
+            data["peer2"]["name"],
+            data["peer1"]["endpoint"],
+            data["peer2"]["endpoint"],
+        )
         config.preshared_key = data["preshared_key"]
         return config
