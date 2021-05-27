@@ -20,6 +20,9 @@ def add(
     ipv4_address: Optional[str] = common.OPTION_IPV4_ADDRESS,
     ipv6_address: Optional[str] = common.OPTION_IPV6_ADDRESS,
 ):
+    """
+    Add a new peer.
+    """
     config = MainConfig.load(config_path)
     try:
         config.add_peer(
@@ -38,6 +41,9 @@ def remove(
     name: str = Argument(..., help="Name of the peer."),
     config_path: Path = common.OPTION_CONFIG_PATH,
 ):
+    """
+    Remove a new peer.
+    """
     config = MainConfig.load(config_path)
     try:
         config.remove_peer(name)
@@ -51,6 +57,9 @@ def list(
     config_path: Path = common.OPTION_CONFIG_PATH,
     verbose: bool = Option(False, "-v", "--verbose"),
 ):
+    """
+    List peers in the config.
+    """
     config = MainConfig.load(config_path)
     for peer in config.peers:
         if verbose:
@@ -65,5 +74,8 @@ def generate_config(
     config_type: PeerConfigType = PeerConfigType.wg_quick,
     config_path: Path = common.OPTION_CONFIG_PATH,
 ):
+    """
+    Generate config file for a peer.
+    """
     config = MainConfig.load(config_path)
     echo(config.generate_peer_config(name, config_type))
