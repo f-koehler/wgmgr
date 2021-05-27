@@ -1,0 +1,41 @@
+{% set peer = config.get_peer(peer_name) %}
+{% set port = peer.port.number %}
+{% set addresses = ([peer.ipv4.address | string] if peer.ipv4 else []) + ([peer.ipv6.address | string] if peer.ipv6 else []) %}
+
+[Interface]
+Address = {{ addresses | join(", ") }}
+ListenPort = {{ port }}
+PrivateKey = {{ peer.private_key }}
+
+{% set p2ps = config.point_to_point %}
+
+{% for p2p in p2ps %}
+
+    {% if config.get_peer_name(p2p.host1_public_key) == peer_name %}
+        {% set other_name = config.get_peer_name(p2p.host2_public_key) %}
+        {% set other_peer = config.get_peer(other_name) %}
+        {% set other_addresses = ([other_peer.ipv4.address | string] if other_peer.ipv4 else []) + ([other_peer.ipv6.address | string] if other_peer.ipv6 else []) %}
+[Peer]
+PublicKey = {{ other_peer.public_key }}
+PresharedKey = {{ p2p.preshared_key }}
+AllowedIPs = {{ other_addresses | join(", ") }}
+        {% if other_peer.host2_endpoint %}
+Endpoint = {{ other_peer.host2_endpoint }}:{{ other_peer.port }}
+        {% endif %}
+
+    {% elif config.get_peer_name(p2p.host2_public_key) == peer_name %}
+
+        {% set other_name = config.get_peer_name(p2p.host1_public_key) %}
+        {% set other_peer = config.get_peer(other_name) %}
+        {% set other_addresses = ([other_peer.ipv4.address | string] if other_peer.ipv4 else []) + ([other_peer.ipv6.address | string] if other_peer.ipv6 else []) %}
+[Peer]
+PublicKey = {{ other_peer.public_key }}
+PresharedKey = {{ p2p.preshared_key }}
+AllowedIPs = {{ other_addresses | join(", ") }}
+        {% if other_peer.host1_endpoint %}
+Endpoint = {{ other_peer.host1_endpoint }}:{{ other_peer.port }}
+        {% endif %}
+
+    {% endif %}
+
+{% endfor %}

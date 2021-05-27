@@ -46,6 +46,12 @@ class MainConfigBase:
                 return peer
         raise UnknownPeerError(name)
 
+    def get_peer_name(self, pubkey: str) -> str:
+        for peer in self.peers:
+            if peer.public_key == pubkey:
+                return peer.name
+        raise UnknownPeerError(f"pubkey={pubkey}")
+
     def get_used_ipv4_addresses(self) -> list[IPv4Address]:
         result: list[IPv4Address] = []
         for peer in self.peers:

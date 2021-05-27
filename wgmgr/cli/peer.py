@@ -6,6 +6,7 @@ from typer import Argument, Option, Typer, echo
 
 from wgmgr.cli import common
 from wgmgr.config.main import MainConfig
+from wgmgr.config.main.operations.peer import PeerConfigType
 from wgmgr.error import DuplicatePeerError, UnknownPeerError
 
 app = Typer()
@@ -56,3 +57,13 @@ def list(
             echo(peer.serialize())
         else:
             echo(peer.name)
+
+
+@app.command()
+def generate_config(
+    name: str = Argument(..., help="Name of the peer."),
+    config_type: PeerConfigType = PeerConfigType.wg_quick,
+    config_path: Path = common.OPTION_CONFIG_PATH,
+):
+    config = MainConfig.load(config_path)
+    echo(config.generate_peer_config(name, config_type))

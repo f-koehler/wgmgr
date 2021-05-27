@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import logging
+from enum import Enum
 from ipaddress import IPv4Address, IPv6Address
 
 from wgmgr import keygen
 from wgmgr.config.main.base import MainConfigBase
 from wgmgr.config.peer import PeerConfig
 from wgmgr.error import DuplicatePeerError, UnknownPeerError
+from wgmgr.templates import get_template
 from wgmgr.util import AssignableIPv4, AssignableIPv6, AssignablePort
 
 LOGGER = logging.getLogger(__name__)
@@ -52,3 +54,16 @@ def add_peer(
 
 def remove_peer(self: MainConfigBase, name: str):
     self.peers.remove(self.get_peer(name))
+
+
+class PeerConfigType(str, Enum):
+    wg_quick = "wg-quick"
+
+
+def generate_peer_config(
+    self: MainConfigBase, name: str, config_type: PeerConfigType
+) -> str:
+    if config_type == PeerConfigType.wg_quick:
+        return get_template("wg-quick.conf.j2").render(config=self, peer_name=name)
+
+    raise ValueError(f"Unknown peer config type {config_type}")

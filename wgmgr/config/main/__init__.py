@@ -22,6 +22,7 @@ class MainConfig(MainConfigBase):
     set_default_port = ops_config.set_default_port
     set_ipv4_network = ops_config.set_ipv4_network
     set_ipv6_network = ops_config.set_ipv6_network
+    generate_peer_config = ops_peer.generate_peer_config
 
     def __init__(
         self,
