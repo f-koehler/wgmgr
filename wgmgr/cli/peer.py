@@ -2,11 +2,11 @@ from ipaddress import IPv4Address, IPv6Address
 from pathlib import Path
 from typing import Optional
 
-from typer import Argument, Typer, echo
+from typer import Argument, Option, Typer, echo
 
 from wgmgr.cli import common
 from wgmgr.config.main import MainConfig
-from wgmgr.error import DuplicatePeerError
+from wgmgr.error import DuplicatePeerError, UnknownPeerError
 
 app = Typer()
 
@@ -32,9 +32,27 @@ def add(
     config.save(config_path)
 
 
-# @app.command()
-# def remove(
-#     name: str = Argument(..., help="Name of the peer."),
-#     config_path: Path = common.OPTION_CONFIG_PATH,
-# ):
-#     pass
+@app.command()
+def remove(
+    name: str = Argument(..., help="Name of the peer."),
+    config_path: Path = common.OPTION_CONFIG_PATH,
+):
+    config = MainConfig.load(config_path)
+    try:
+        config.remove_peer(name)
+    except UnknownPeerError:
+        echo(f"no such peer: {name}", err=True)
+    config.save(config_path)
+
+
+@app.command()
+def list(
+    config_path: Path = common.OPTION_CONFIG_PATH,
+    verbose: bool = Option(False, "-v", "--verbose"),
+):
+    config = MainConfig.load(config_path)
+    for peer in config.peers:
+        if verbose:
+            echo(peer.serialize())
+        else:
+            echo(peer.name)
