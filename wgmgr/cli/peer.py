@@ -1,7 +1,6 @@
-from __future__ import annotations
-
 from ipaddress import IPv4Address, IPv6Address
 from pathlib import Path
+from typing import Optional
 
 from typer import Argument, Typer, echo
 
@@ -16,9 +15,9 @@ app = Typer()
 def add(
     name: str = Argument(..., help="Name of the peer."),
     config_path: Path = common.OPTION_CONFIG_PATH,
-    port: int | None = common.OPTION_PORT,
-    ipv4_address: str | None = common.OPTION_IPV4_ADDRESS,
-    ipv6_address: str | None = common.OPTION_IPV6_ADDRESS,
+    port: Optional[int] = common.OPTION_PORT,
+    ipv4_address: Optional[str] = common.OPTION_IPV4_ADDRESS,
+    ipv6_address: Optional[str] = common.OPTION_IPV6_ADDRESS,
 ):
     config = MainConfig.load(config_path)
     try:

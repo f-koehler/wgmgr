@@ -1,7 +1,6 @@
-from __future__ import annotations
-
 from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
+from typing import Optional
 
 from typer import Option, Typer, echo
 
@@ -14,9 +13,9 @@ app = Typer()
 @app.command()
 def new(
     config_path: Path = common.OPTION_CONFIG_PATH,
-    ipv4_network: str | None = common.OPTION_IPV4_NETWORK,
-    ipv6_network: str | None = common.OPTION_IPV6_NETWORK,
-    default_port: int | None = common.OPTION_PORT,
+    ipv4_network: Optional[str] = common.OPTION_IPV4_NETWORK,
+    ipv6_network: Optional[str] = common.OPTION_IPV6_NETWORK,
+    default_port: Optional[int] = common.OPTION_PORT,
     force: bool = Option(
         False, "-f", "--force", help="Force overwriting of existing config file"
     ),
@@ -49,9 +48,9 @@ def new(
 @app.command()
 def set(
     config_path: Path = common.OPTION_CONFIG_PATH,
-    port: int | None = common.OPTION_PORT,
-    ipv4_network: str | None = common.OPTION_IPV4_NETWORK,
-    ipv6_network: str | None = common.OPTION_IPV6_NETWORK,
+    port: Optional[int] = common.OPTION_PORT,
+    ipv4_network: Optional[str] = common.OPTION_IPV4_NETWORK,
+    ipv6_network: Optional[str] = common.OPTION_IPV6_NETWORK,
 ):
     """
     Change default properties of the config and update peers accordingly.
