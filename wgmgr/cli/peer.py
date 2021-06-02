@@ -5,8 +5,8 @@ from typing import Optional
 from typer import Argument, Option, Typer, echo
 
 from wgmgr.cli import common
-from wgmgr.config.main import MainConfig
-from wgmgr.config.main.operations.peer import PeerConfigType
+from wgmgr import MainConfig
+from wgmgr.operations.peer import PeerConfigType
 from wgmgr.error import DuplicatePeerError, UnknownPeerError
 
 app = Typer()

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from wgmgr.config.main.base import MainConfigBase
-from wgmgr.config.p2p import PointToPointConfig
+from wgmgr.base import MainConfigBase
+from wgmgr.p2p import PointToPointConfig
 
 
 def add_p2p(

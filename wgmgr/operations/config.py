@@ -4,7 +4,7 @@ import logging
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 from typing import cast
 
-from wgmgr.config.main.base import MainConfigBase
+from wgmgr.base import MainConfigBase
 from wgmgr.util import AssignableIPv4, AssignableIPv6
 
 LOGGER = logging.getLogger(__name__)

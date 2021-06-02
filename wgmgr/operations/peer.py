@@ -5,8 +5,8 @@ from enum import Enum
 from ipaddress import IPv4Address, IPv6Address
 
 from wgmgr import keygen
-from wgmgr.config.main.base import MainConfigBase
-from wgmgr.config.peer import PeerConfig
+from wgmgr.base import MainConfigBase
+from wgmgr.peer import PeerConfig
 from wgmgr.error import DuplicatePeerError, UnknownPeerError
 from wgmgr.templates import get_template
 from wgmgr.util import AssignableIPv4, AssignableIPv6, AssignablePort
