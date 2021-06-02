@@ -8,6 +8,11 @@ class UnknownPeerError(Exception):
         super().__init__(f"unknown peer: {name}")
 
 
+class UnknownSiteError(Exception):
+    def __init__(self, name: str):
+        super().__init__(f"unknown site: {name}")
+
+
 class FreeAddressError(Exception):
     def __init__(self, protocol: str):
         super().__init__(f"no free {protocol} address")

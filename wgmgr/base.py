@@ -8,6 +8,7 @@ from wgmgr.migrations import load_migration
 from wgmgr.p2p import PointToPointConfig
 from wgmgr.peer import PeerConfig
 from wgmgr.error import ConfigVersionError, FreeAddressError, UnknownPeerError
+from wgmgr.site import Site
 
 CURRENT_CONFIG_VERSION = 1
 
@@ -28,6 +29,7 @@ class MainConfigBase:
         self.default_port = default_port
         self.peers: list[PeerConfig] = []
         self.point_to_point: list[PointToPointConfig] = []
+        self.sites: list[Site] = []
 
     @staticmethod
     def migrate(data: dict[str, Any]) -> dict[str, Any]:
@@ -92,6 +94,7 @@ class MainConfigBase:
             "default_port": self.default_port,
             "peers": [peer.serialize() for peer in self.peers],
             "point_to_point": [p2p.serialize() for p2p in self.point_to_point],
+            "sites": [site.serialize() for site in self.sites],
         }
 
     @staticmethod
@@ -112,5 +115,6 @@ class MainConfigBase:
         config.point_to_point = [
             PointToPointConfig.deserialize(entry) for entry in data["point_to_point"]
         ]
+        config.sites = [Site.deserialize(entry) for entry in data["sites"]]
 
         return config

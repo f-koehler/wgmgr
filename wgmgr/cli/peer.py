@@ -7,7 +7,7 @@ from typer import Argument, Option, Typer, echo
 from wgmgr.cli import common
 from wgmgr import MainConfig
 from wgmgr.operations.peer import PeerConfigType
-from wgmgr.error import DuplicatePeerError, UnknownPeerError
+from wgmgr.error import DuplicatePeerError, UnknownPeerError, UnknownSiteError
 
 app = Typer()
 
@@ -19,6 +19,7 @@ def add(
     port: Optional[int] = common.OPTION_PORT,
     ipv4_address: Optional[str] = common.OPTION_IPV4_ADDRESS,
     ipv6_address: Optional[str] = common.OPTION_IPV6_ADDRESS,
+    site: Optional[str] = None,
 ):
     """
     Add a new peer.
@@ -33,6 +34,7 @@ def add(
         )
     except DuplicatePeerError as e:
         echo(str(e), err=True)
+
     config.save(config_path)
 
 

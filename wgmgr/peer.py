@@ -3,16 +3,20 @@ from __future__ import annotations
 from typing import Any
 
 from wgmgr.util import AssignableIPv4, AssignableIPv6, AssignablePort
+from wgmgr.site import Site
 
 
 class PeerConfig:
-    def __init__(self, name: str, private_key: str, public_key: str):
+    def __init__(
+        self, name: str, private_key: str, public_key: str, site: str | None = None
+    ):
         self.name: str = name
         self.private_key: str = private_key
         self.public_key: str = public_key
         self.ipv4: AssignableIPv4 | None
         self.ipv6: AssignableIPv6 | None
         self.port: AssignablePort
+        self.site: str | None
 
     def serialize(self) -> dict[str, Any]:
         return {
