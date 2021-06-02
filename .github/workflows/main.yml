@@ -72,6 +72,8 @@ jobs:
         run: poetry run invoke isort
       - name: Run black
         run: poetry run invoke black
+      - name: Run mypy
+        run: poetry run invoke mypy
 
   deploy:
     name: Deploy

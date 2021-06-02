@@ -51,6 +51,11 @@ def flake8(c):
 
 
 @task
+def mypy(c):
+    c.run(f"{VENV}/bin/mypy {PKG_PATH}")
+
+
+@task
 def tools(c):
     """Install tools in the virtual environment if not already on PATH"""
     for tool in TOOLS:
