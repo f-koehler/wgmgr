@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wgmgr"
-version = "0.2.0"
+version = "0.3.0"
 description = "Easily manage wireguard configs."
 license = "GPL-3.0-or-later"
 authors = ["Fabian Köhler <fabian.koehler@protonmail.ch>"]
