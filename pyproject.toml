@@ -33,7 +33,7 @@ classifiers = [
 
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 Jinja2 = ">=2.11.3,<4.0.0"
 PyYAML = "^5.4.1"
 typer = {extras = ["all"], version = "^0.3.2"}
