@@ -4,8 +4,8 @@ from shutil import which
 
 from invoke import task
 
-PKG_NAME = "figures"
-PKG_PATH = Path(f"pelican/plugins/{PKG_NAME}")
+PKG_NAME = "wgmgr"
+PKG_PATH = Path(f"{PKG_NAME}")
 ACTIVE_VENV = os.environ.get("VIRTUAL_ENV", None)
 VENV_HOME = Path(os.environ.get("WORKON_HOME", "~/.local/share/virtualenvs"))
 VENV_PATH = Path(ACTIVE_VENV) if ACTIVE_VENV else (VENV_HOME / PKG_NAME)
@@ -48,13 +48,6 @@ def isort(c, check=False, diff=False):
 @task
 def flake8(c):
     c.run(f"{VENV}/bin/flake8 {PKG_PATH} tasks.py")
-
-
-@task
-def lint(c):
-    isort(c, check=True)
-    black(c, check=True)
-    flake8(c)
 
 
 @task

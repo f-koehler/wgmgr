@@ -5,8 +5,8 @@ from typing import Optional
 
 from typer import Option, Typer, echo
 
-from wgmgr.cli import common, p2p, peer
 from wgmgr import MainConfig
+from wgmgr.cli import common, p2p, peer
 
 logging.basicConfig(level=logging.INFO)
 

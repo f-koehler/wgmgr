@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 from wgmgr.util import AssignableIPv4, AssignableIPv6, AssignablePort
-from wgmgr.site import Site
 
 
 class PeerConfig:

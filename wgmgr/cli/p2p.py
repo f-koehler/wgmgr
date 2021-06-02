@@ -3,8 +3,8 @@ from typing import Optional
 
 from typer import Argument, Option, Typer, echo
 
-from wgmgr.cli import common
 from wgmgr import MainConfig
+from wgmgr.cli import common
 
 app = Typer()
 

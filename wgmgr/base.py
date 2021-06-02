@@ -4,10 +4,10 @@ from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 from logging import getLogger
 from typing import Any
 
+from wgmgr.error import ConfigVersionError, FreeAddressError, UnknownPeerError
 from wgmgr.migrations import load_migration
 from wgmgr.p2p import PointToPointConfig
 from wgmgr.peer import PeerConfig
-from wgmgr.error import ConfigVersionError, FreeAddressError, UnknownPeerError
 from wgmgr.site import Site
 
 CURRENT_CONFIG_VERSION = 1

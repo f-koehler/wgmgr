@@ -4,10 +4,10 @@ from typing import Optional
 
 from typer import Argument, Option, Typer, echo
 
-from wgmgr.cli import common
 from wgmgr import MainConfig
+from wgmgr.cli import common
+from wgmgr.error import DuplicatePeerError, UnknownPeerError
 from wgmgr.operations.peer import PeerConfigType
-from wgmgr.error import DuplicatePeerError, UnknownPeerError, UnknownSiteError
 
 app = Typer()
 

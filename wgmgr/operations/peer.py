@@ -6,8 +6,8 @@ from ipaddress import IPv4Address, IPv6Address
 
 from wgmgr import keygen
 from wgmgr.base import MainConfigBase
-from wgmgr.peer import PeerConfig
 from wgmgr.error import DuplicatePeerError, UnknownPeerError
+from wgmgr.peer import PeerConfig
 from wgmgr.templates import get_template
 from wgmgr.util import AssignableIPv4, AssignableIPv6, AssignablePort
 
