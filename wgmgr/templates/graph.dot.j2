@@ -1,0 +1,5 @@
+graph network {
+    {% for peer in config.peers %}
+    peer_{{ peer.name }};
+    {% endfor %}
+}

@@ -2,94 +2,82 @@ from ipaddress import IPv4Address, IPv6Address
 from pathlib import Path
 from typing import Optional
 
-from typer import Argument, Option, Typer
+from typer import Argument, Option, Typer, echo
 
 from wgmgr.cli import common
-from wgmgr.config import Config
-from wgmgr.peer import Peer
-from wgmgr.util import validate_address_ipv4, validate_address_ipv6, validate_port
+from wgmgr import MainConfig
+from wgmgr.operations.peer import PeerConfigType
+from wgmgr.error import DuplicatePeerError, UnknownPeerError, UnknownSiteError
 
 app = Typer()
 
 
 @app.command()
-def new(
-    name: str = Argument(..., help="hostname for the new peer"),
-    path: Path = common.config_file,
-    ipv4: Optional[str] = Option(
-        None,
-        "-4",
-        "--ipv4",
-        help="IPv4 address of the new peer",
-        callback=validate_address_ipv4,
-    ),
-    ipv6: Optional[str] = Option(
-        None,
-        "-6",
-        "--ipv6",
-        help="IPv6 address of the new peer",
-        callback=validate_address_ipv6,
-    ),
-    port: Optional[int] = Option(
-        None,
-        "-p",
-        "--port",
-        help="port to use, will use config default if not specified",
-        callback=validate_port,
-    ),
-    force: bool = Option(
-        False, "-f", "--force", help="whether to overwrite existing hosts"
-    ),
+def add(
+    name: str = Argument(..., help="Name of the peer."),
+    config_path: Path = common.OPTION_CONFIG_PATH,
+    port: Optional[int] = common.OPTION_PORT,
+    ipv4_address: Optional[str] = common.OPTION_IPV4_ADDRESS,
+    ipv6_address: Optional[str] = common.OPTION_IPV6_ADDRESS,
+    site: Optional[str] = None,
 ):
-    config = Config.load(path)
-
-    if (config.get_peer(name) is not None) and (not force):
-        raise RuntimeError(f'peer "{name}" exists, use -f/--force to overwrite')
-
-    if (
-        (config.network_ipv4 is None)
-        and (ipv4 is None)
-        and (config.network_ipv6 is None)
-        and (ipv6 is None)
-    ):
-        raise RuntimeError(
-            "Config does not contain a IPv4 or IPv6"
-            "and no address specified through -4/--ipv4 and -6/--ipv6"
+    """
+    Add a new peer.
+    """
+    config = MainConfig.load(config_path)
+    try:
+        config.add_peer(
+            name,
+            IPv4Address(ipv4_address) if ipv4_address else None,
+            IPv6Address(ipv6_address) if ipv6_address else None,
+            port,
         )
+    except DuplicatePeerError as e:
+        echo(str(e), err=True)
 
-    peer = Peer(name)
-    if port is not None:
-        peer.port = port
-        peer.port_auto = False
-    else:
-        peer.port = config.default_port
-        peer.port_auto = True
-
-    if ipv4 is not None:
-        peer.ipv4_address = IPv4Address(ipv4)
-        peer.ipv4_auto = False
-    elif config.network_ipv4 is not None:
-        peer.ipv4_address = config.get_next_ipv4()
-        peer.ipv4_auto = True
-
-    if ipv6 is not None:
-        peer.ipv6_address = IPv6Address(ipv6)
-        peer.ipv6_auto = False
-    elif config.network_ipv6 is not None:
-        peer.ipv6_address = config.get_next_ipv6()
-        peer.ipv6_auto = True
-
-    config.peers.append(peer)
-
-    config.save(path)
+    config.save(config_path)
 
 
 @app.command()
-def list(path: Path = common.config_file):
-    config = Config.load(path)
+def remove(
+    name: str = Argument(..., help="Name of the peer."),
+    config_path: Path = common.OPTION_CONFIG_PATH,
+):
+    """
+    Remove a new peer.
+    """
+    config = MainConfig.load(config_path)
+    try:
+        config.remove_peer(name)
+    except UnknownPeerError:
+        echo(f"no such peer: {name}", err=True)
+    config.save(config_path)
+
+
+@app.command()
+def list(
+    config_path: Path = common.OPTION_CONFIG_PATH,
+    verbose: bool = Option(False, "-v", "--verbose"),
+):
+    """
+    List peers in the config.
+    """
+    config = MainConfig.load(config_path)
     for peer in config.peers:
-        print(peer.to_config_entry())
+        if verbose:
+            echo(peer.serialize())
+        else:
+            echo(peer.name)
 
 
-if __name__ == "__main__":
-    app()
+@app.command()
+def generate_config(
+    name: str = Argument(..., help="Name of the peer."),
+    config_type: PeerConfigType = PeerConfigType.wg_quick,
+    config_path: Path = common.OPTION_CONFIG_PATH,
+):
+    """
+    Generate config file for a peer.
+    """
+    config = MainConfig.load(config_path)
+    echo(config.generate_peer_config(name, config_type))

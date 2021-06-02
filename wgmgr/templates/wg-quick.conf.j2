@@ -1,26 +1,41 @@
-{% set peer = config.get_peer(peer_name) %}
+{%- set peer = config.get_peer(peer_name) %}
+{%- set port = peer.port.number %}
+{%- set addresses = ([peer.ipv4.address | string] if peer.ipv4 else []) + ([peer.ipv6.address | string] if peer.ipv6 else []) -%}
+
 [Interface]
-Address = {{ ", ".join(peer.get_addresses_str()) }}
-ListenPort = {{ peer.port }}
+Address = {{ addresses | join(", ") }}
+ListenPort = {{ port }}
 PrivateKey = {{ peer.private_key }}
 
-{% for connection in config.get_connections_for_peer(peer_name) %}
-    {% if connection.peer1 == peer_name %}
-        {% set peer2 = config.get_peer(connection.peer2) %}
-        {% if connection.endpoint2 %}
-            {% set endpoint = connection.endpoint2 %}
-        {% endif %}
-    {% else %}
-        {% set peer2 = config.get_peer(connection.peer1) %}
-        {% if connection.endpoint1 %}
-            {% set endpoint = connection.endpoint1 %}
-        {% endif %}
-    {% endif %}
+{%- set p2ps = config.point_to_point -%}
+
+{%- for p2p in p2ps -%}
+
+    {%- if p2p.peer1_name == peer_name %}
+        {%- set other_name = p2p.peer2_name %}
+        {%- set other_peer = config.get_peer(other_name) %}
+        {%- set other_addresses = ([other_peer.ipv4.address | string] if other_peer.ipv4 else []) + ([other_peer.ipv6.address | string] if other_peer.ipv6 else []) %}
 [Peer]
-PublicKey = {{ peer2.public_key }}
-PresharedKey = {{ connection.psk }}
-AllowedIPs = {{ ", ".join(peer2.get_addresses_str()) }}
-    {% if endpoint is defined %}
-Endpoint = {{ endpoint }}:{{ peer2.port }}
+PublicKey = {{ other_peer.public_key }}
+PresharedKey = {{ p2p.preshared_key }}
+AllowedIPs = {{ other_addresses | join(", ") }}
+        {%- if p2p.peer2_endpoint is not none %}
+Endpoint = {{ p2p.peer2_endpoint }}:{{ other_peer.port.number }}
+        {% endif %}
+
+    {% elif p2p.peer2_name == peer_name %}
+
+        {% set other_name = config.get_peer_name(p2p.peer1_name) %}
+        {% set other_peer = config.get_peer(other_name) %}
+        {% set other_addresses = ([other_peer.ipv4.address | string] if other_peer.ipv4 else []) + ([other_peer.ipv6.address | string] if other_peer.ipv6 else []) %}
+[Peer]
+PublicKey = {{ other_peer.public_key }}
+PresharedKey = {{ p2p.preshared_key }}
+AllowedIPs = {{ other_addresses | join(", ") }}
+        {%- if p2p.peer1_endpoint is not none %}
+Endpoint = {{ p2p.peer1_endpoint }}:{{ other_peer.port.number }}
+        {% endif %}
+
     {% endif %}
+
 {% endfor %}
