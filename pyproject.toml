@@ -39,7 +39,7 @@ PyYAML = "^5.4.1"
 typer = {extras = ["all"], version = "^0.3.2"}
 
 [tool.poetry.dev-dependencies]
-mypy = "^0.812"
+mypy = "^0.902"
 pylint = "^2.6.0"
 black = { version = "^21", allow-prereleases = true }
 pytest = "^6.2.2"
