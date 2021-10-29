@@ -50,7 +50,7 @@ rope = "^0.20.1"
 flake8 = "^4.0.1"
 lxml = "^4.6.2"
 invoke = "^1.5.0"
-types-PyYAML = "^5.4.0"
+types-PyYAML = "^6.0.0"
 
 [tool.poetry.scripts]
 wgmgr = "wgmgr.cli:app"
