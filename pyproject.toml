@@ -42,7 +42,7 @@ typer = {extras = ["all"], version = ">=0.3.2,<0.5.0"}
 mypy = "^0.931"
 pylint = "^2.6.0"
 black = { version = "^22", allow-prereleases = true }
-pytest = "^6.2.2"
+pytest = "^7.0.1"
 pre-commit = "^2.10.0"
 pyupgrade = "^2.9.0"
 isort = "^5.7.0"
